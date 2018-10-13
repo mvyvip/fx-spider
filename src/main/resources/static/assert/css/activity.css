@@ -1,0 +1,172 @@
+*{
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+body{
+	padding-bottom: 67px;
+}
+.headbg,.middlebg{
+	width: 100%;
+	display: block;
+}
+.activityrule{
+	display: block;
+	width: 64%;
+	margin: 0 auto;
+}
+p{
+	width: 89.33333333333333%;
+	margin: 0 auto;
+	font-size:14px;
+font-family:PingFangSC-Light;
+color:rgba(66,66,66,1);
+line-height:26px;
+
+}
+.mt20{
+	margin-top: 20px;
+}
+.mt40{
+	margin-top: 40px;
+}
+.mb10{
+	margin-bottom: 10px;
+}
+.fl{
+	float: left;
+}
+
+.fr{
+	float: right;
+}
+.clear{
+	clear: both;
+}
+.mt79{
+	margin-top: 0px;
+	padding: 0 20px;
+}
+.mt79:before{
+	display: block;
+	height: 1px ;
+	width: 100%;
+	background: #C7D2DA;
+	content:' '
+}
+.pl20{
+	padding-left: 20px;
+	position:relative;
+}
+.pr20{
+	padding-right: 20px;
+	position:relative;
+}
+.mt79 p{
+	text-align: center;
+	font-size:14px;
+font-family:PingFangSC-Light;
+color:rgba(189,189,189,1);
+line-height:26px;
+}
+.text{
+	position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+	width: 49.29577464788732%;
+	font-size:16px;
+font-family:PingFangSC-Regular;
+color:rgba(66,66,66,1);
+line-height:22px;
+}
+.img{
+	width:50.70422535211268%;
+	
+}
+.r0{
+	right: 0;
+}
+.img img{
+	width: 100%;
+}
+.help{
+	padding: 10px 20px 68px 10px;
+}
+.help .img{
+	display: block;
+	width: 48vw;
+	height: 75.73333333333333vw;
+}
+.help .smallimg{
+	width: 5.33333333333333vw;
+	display: block;
+}
+.help .text165{
+	max-width:44vw ;
+	font-size:14px;
+font-family:PingFangSC-Regular;
+color:rgba(0,0,0,1);
+line-height:20px;
+margin: 0;
+padding: 0;
+width: 100%;
+}
+.help .text145{
+margin: 0;
+padding: 0;
+font-size:14px;
+font-family:PingFangSC-Regular;
+color:rgba(0,0,0,1);
+line-height:20px;
+width: 100%;
+max-width:38.66666666666667vw ;
+}
+.help .text160{
+margin: 0;
+padding: 0;
+font-size:14px;
+font-family:PingFangSC-Regular;
+color:rgba(0,0,0,1);
+line-height:20px;
+width: 100%;
+max-width:42.66666666666667vw ;
+}
+.help .middler{
+	position: absolute;
+    top: 50%;
+    right: 0px;
+    transform: translateY(-50%);
+}
+.help .middlel{
+	position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+}
+.help .adiv{
+	position: relative;
+	margin-top: 20px;
+}
+.help  .dispinline{
+	display: inline-block;
+	vertical-align: -5px;
+}
+.help .text160 span{
+	font-size:12px;
+font-family:PingFangSC-Regular;
+color:rgba(0,0,0,1);
+line-height:20px;
+}
+.actityCenter{
+	padding: 0 10px;
+	padding-top: 20px;
+	
+}
+.actityCenter ul li{
+	list-style: none;
+	border-radius: 14px;
+}
+.actityCenter ul li img{
+
+	width: 100%;
+}

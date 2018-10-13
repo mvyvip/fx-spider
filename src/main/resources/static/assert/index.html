@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>抽奖专区</title>
+
+<link rel="stylesheet" type="text/css" href="css/mobileSelect.css"/>
+<link rel="stylesheet" type="text/css" href="css/animate.css"/>
+<link rel="stylesheet" type="text/css" href="css/toast.css"/>
+ <link rel="stylesheet" href="css/fakeLoader.css">
+<link rel="stylesheet" type="text/css" href="css/index.css"/>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js" type="text/javascript" charset="utf-8"></script>
+
+</head>
+<body class="keBody" onload="document.body.scrollTop='0px';">
+	
+ 	<div class="fakeloader" style="display: block;"></div>
+ 	<div id="ccontent">
+	<div class="logo">
+		<img src="img/狗年开运@3x.png" alt="" />
+	</div>
+	 
+<!--效果html开始-->
+<div id="lottery" >
+	<h2 class="lottery-title">今天剩余抽奖次数： <span id="countx"> 0 </span></h2>
+    <table border="0" cellpadding="0" cellspacing="0" >
+        <tr>
+            <td class="lottery-unit lottery-unit-0"><img src="img/红包@3x.png"><h2>16</h2><p>16元红包</p> <div class="mask"></div></td>
+            <td class="lottery-unit lottery-unit-1"><img src="img/iPhone@3x.png" ><p>iphoneX</p><div class="mask"></div></td>
+            <td class="lottery-unit lottery-unit-2"><img src="img/红包@3x.png"><h2>88</h2><p>88元红包</p><div class="mask"></div></td>
+        </tr>
+        <tr>
+            <td class="lottery-unit lottery-unit-7"><img src="img/双人游@3x.png"><h2></h2><p>欧洲双人游</p><div class="mask"></div></td>
+            <td class="play" onclick="choujiang()"><img src="img/立即抽奖@3x.png" alt="" /></td>
+            <td class="lottery-unit lottery-unit-3"><img src="img/红包@3x.png"><h2>500</h2><p>500元红包</p><div class="mask"></div></td>
+        </tr>
+        <tr>
+            <td class="lottery-unit lottery-unit-6"><img src="img/红包@3x.png"><h2>2.8</h2><p>2.8元红包</p><div class="mask"></div></td>
+            <td class="lottery-unit lottery-unit-5"><img src="img/红包@3x.png"><h2>22</h2><p>22元红包</p><div class="mask"></div></td>
+            <td class="lottery-unit lottery-unit-4"><img src="img/谢谢参与@3x.png" ><p>谢谢参与</p><div class="mask"></div></td>
+        </tr>
+    </table>
+</div>
+<div id="guize">
+	<div class="guizebtn">活动介绍</div>
+	<p>即日起凡注册【飞带社区】的用户均可参加“狗年开运 了解一下”抽奖活动，大量现金红包，还有iPhoneX、欧洲十日双人游大奖等你来拿！</p> 
+	<p>此活动为概率中奖，奖品数量有限，祝好运！</p>
+</div>
+<div id="guize">
+	<div class="guizebtn">活动规则</div>
+	<p>1.活动时间：即日起 至 2018-03-08 </p>
+	<p>2.每位用户每日均享有2次抽奖机会，次日更新</p>
+	<p>3.用户可将本活动页面分享至微信群 朋友圈，即可额外获得一次抽奖机会，每人每日最多获得一次额外抽奖机会 </p> 
+	<p>4.非飞带社区用户参与本活动前必须填写手机号码，方便工作人员联系奖品的发放，若为现金奖励，请凭该手机号下载注册飞带社区app，奖金已自动放入（我的钱包-余额）</p>
+	<p class="jieshi">本活动最终解释权归四川小鹰科技有限公司所有</p>
+</div>
+<!--<div class="bottom">
+	<img src="img/形状2@2x.png"/>
+</div>-->
+
+
+
+
+<div class="maskk none" id="zhongle">
+	<div class="bg">
+		<div class="top">
+		
+	</div>
+	<div class="bottom">
+		<h2></h2>
+		<p></p>
+		<div class="btn">
+			
+		</div>
+	</div></div>
+</div>
+<div class="maskk none" id="nolucky">
+	<div class="maskk1" onclick="$('#nolucky').hide()">
+		
+	</div>
+	<div class="content1">
+		<img src="img/sad@3x.png" class="ku"/>
+		<h2>
+			很遗憾，未中奖
+		</h2>
+		<p>
+			与奖品擦肩而过，祝你新年行大运！
+		</p>
+		<div class="div" onclick="$('#nolucky').hide()">
+			继续抽奖
+		</div>
+	</div>
+</div>
+<div class="maskk none" id="pleaseShuru" >
+	<div class="maskk1" onclick="$('#pleaseShuru').hide()">
+		
+	</div>
+	<div class="content3">
+		<h2>
+			请先填写手机号码
+		</h2>
+		<ul>
+			<li id="selectArea"><div class="fll">国家/地区</div><div class="frr"></div><div class="clear"></div></li>
+			<li>
+				<input type="tel" class="phone" name="" id="" value="" placeholder="请输入手机号码" />
+			</li>
+		</ul>
+		<div class="div" onclick="lottery.submit()">
+			确定
+		</div>
+	</div>
+</div>
+<div class="maskk none" id="pleaseShare" >
+	<div class="maskk1" onclick="$('#pleaseShare').hide()">
+		
+	</div>
+	<div class="content1">
+		<img src="img/sad@3x.png" class="ku"/>
+		<h2>
+			今日抽奖机会已用完～
+		</h2>
+		<p>
+			分享本活动至微信群 朋友圈，额外获得一次抽奖机会
+		</p>
+		<div class="div" onclick="lottery.share()">
+			分享至微信
+		</div>
+	</div>
+</div>
+<div class="maskk none" id="lucky">
+	<div class="maskk1" onclick="$('#lucky').hide()">
+		
+	</div>
+	<div class="content2">
+		<h2>
+			恭喜获得
+		</h2>
+		<div class="jiangpin">
+			<img src="img/红包@3x.png" alt="" />
+			<h2 class="jine">0</h2>
+			<p><span class="jine">0</span>元红包</p>
+		</div>
+		
+		<div class="div" onclick="$('#lucky').hide()">
+			继续抽奖
+		</div>
+		<p>已自动放入余额，可随时提现</p>
+	</div>
+</div>
+<div class="maskk none" id="wechatshow" >
+	<div class="maskk1" onclick="$('#wechatshow').hide()">
+		
+	</div>
+	<div>
+		<img src="img/手指@3x.png" alt="" />
+	</div>
+	<div class="p"><p>点击右上角 </p>发送到 微信群 或者 分享到朋友圈</div>
+</div>
+</div>
+<script src="js/jquery-latest.js"></script>
+<script src="js/fakeLoader.min.js"></script>
+<script src="js/mobileSelect.min.js" type="text/javascript" charset="utf-8"></script>
+
+<script src="js/toast.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/index.js"></script>
+<script type="text/javascript">
+</script>
+<!--效果html结束-->
+
+</body>
+</html>
