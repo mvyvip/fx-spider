@@ -235,7 +235,7 @@ public class SpliderRunnable implements Runnable {
                 while (initCodeFlag.get()) {
                     System.out.println(new Date().toLocaleString());
                     try {
-                        if (new Date().getMinutes() == 1 && new Date().getSeconds() >= SystemConstant.SYNC_CODE_SECONDS
+                        if (new Date().getMinutes() == 59 && new Date().getSeconds() >= SystemConstant.SYNC_CODE_SECONDS
                                 || (vcCodeJson != null && new Date().getTime() >= DateUtils.addSeconds(initCodeDate, 45).getTime())) {
                             info("开始提前验证码");
                             initCodeDate = new Date();
