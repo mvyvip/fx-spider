@@ -9,6 +9,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.*;
@@ -18,6 +19,36 @@ import java.util.*;
 public class ProxyUtil {
 
     private List<ProxyEntity> proxyEntities = new ArrayList<>();
+
+    @PostConstruct
+    public void init() {
+        task();
+    }
+
+    public void task() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                log.info("自动同步ip启动");
+                while (true) {
+                    try {
+                        Iterator<ProxyEntity> iterator = proxyEntities.iterator();
+                        while (iterator.hasNext()) {
+                            ProxyEntity next = iterator.next();
+                            if (next.isExpire()) {
+                                iterator.remove();
+                            }
+                        }
+                        if(getCanUsed() < SystemConstant.IP_COUNT) {
+                            initIps();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
 
     public List<ProxyEntity> initIps() {
       try {
@@ -32,7 +63,7 @@ public class ProxyUtil {
               JSONObject jsonObject = JSONObject.parseObject(data.toString());
               proxyEntities.add(new ProxyEntity(jsonObject.getString("ip"), jsonObject.getInteger("port"), jsonObject.getDate("expire_time")));
           }
-          log.info("初始化完毕" + new Date().toLocaleString());
+          log.info("初始化完毕" + new Date().toLocaleString() + "---size: " + proxyEntities.size());
       } catch (Exception e) {
           e.printStackTrace();
       }

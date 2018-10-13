@@ -172,7 +172,7 @@ public class SpliderRunnable implements Runnable {
                                     .proxy(proxyUtil.getProxy())
                                     .timeout(SystemConstant.TIME_OUT).cookies(cookies).followRedirects(true).execute().body();
                             if (body.contains("库存不足,当前最多可售数量")) {
-                                System.err.println("库存不足 - " + new Date().toLocaleString());
+                                info("库存不足 - " + new Date().toLocaleString());
                             } else if (body.contains("返回商品详情") || body.contains("cart_md5")) {
                                 updateRsBody(body);
                             }

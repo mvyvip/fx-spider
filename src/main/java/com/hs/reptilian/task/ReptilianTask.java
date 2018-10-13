@@ -41,11 +41,11 @@ public class ReptilianTask {
         log.info("项目初始化中-----------------------------");
         List<OrderAccount> accounts = orderAccountRepository.findAll();
 
-        accounts.clear();
-        OrderAccount oc = new OrderAccount();
-        oc.setPhone("13694354587");
-        oc.setPassword("li5201314");
-        accounts.add(oc);
+//        accounts.clear();
+//        OrderAccount oc = new OrderAccount();
+//        oc.setPhone("13694354587");
+//        oc.setPassword("li5201314");
+//        accounts.add(oc);
 
 //        systemConfigRepository.findByKey(SystemConfigConstant.GOODS_URL).getValue();
 

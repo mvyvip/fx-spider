@@ -10,7 +10,7 @@ public interface SystemConstant {
 
     int THREAD_WAIT_TIME = 400;
 
-    int IP_COUNT = 8;
+    int IP_COUNT = 100;
 
     int IP_MAX_COUNT = 15;
 
