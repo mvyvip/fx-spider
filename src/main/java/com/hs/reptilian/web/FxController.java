@@ -44,7 +44,7 @@ public class FxController {
                @Override
                public void run() {
                    try {
-                       Map<String, String> cookies = getCookies(orderAccount.getUsername(), orderAccount.getPassword());
+                       Map<String, String> cookies = getCookies(orderAccount.getUsername(), orderAccount.getPassword(), 0);
                        Connection.Response execute = Jsoup.connect("https://mall.phicomm.com/my-receiver-save.html").method(Connection.Method.POST).cookies(cookies)
                                .timeout(SystemConstant.TIME_OUT)
                                .ignoreContentType(true)
@@ -113,7 +113,7 @@ public class FxController {
                 @Override
                 public void run() {
                     try {
-                        Map<String, String> cookies = getCookies(orderAccount.getPhone(), orderAccount.getPassword());
+                        Map<String, String> cookies = getCookies(orderAccount.getPhone(), orderAccount.getPassword(), 0);
                         if(MapUtils.isNotEmpty(cookies)) {
                             String vc = getVc(cookies);
                             Connection.Response response = getOrders(cookies);
@@ -248,13 +248,12 @@ public class FxController {
         }
     }
 
-    private Map<String, String> getCookies(String username, String password)  {
+    private Map<String, String> getCookies(String username, String password, int tryCount) {
         try {
-            Connection.Response pageResponse = Jsoup.connect("https://mall.phicomm.com/passport-login.html").method(Connection.Method.GET).timeout(SystemConstant.TIME_OUT)
+            Map<String, String> pageCookies = Jsoup.connect("https://mall.phicomm.com/passport-login.html")
+                    .method(Connection.Method.GET).timeout(SystemConstant.TIME_OUT)
                     .proxy(proxyUtil.getProxy())
-                    .execute();
-            Map<String, String> pageCookies = pageResponse.cookies();
-
+                    .execute().cookies();
             Connection.Response loginResponse = Jsoup.connect("https://mall.phicomm.com/passport-post_login.html")
                     .proxy(proxyUtil.getProxy())
                     .method(Connection.Method.POST)
@@ -266,21 +265,23 @@ public class FxController {
                     .data("uname", username)
                     .data("password", password)
                     .execute();
+            if (loginResponse.body().contains("error")) {
+                throw new RuntimeException("账号或密码错误");
 
-            if(loginResponse.body().contains("error")) {
-                log.error("帐号或密码不正确----" + username + "----" + password);
-                return null;
             }
-
+            log.info(username + "----登录成功");
             Map<String, String> cks = new HashMap<>();
             cks.putAll(pageCookies);
             cks.putAll(loginResponse.cookies());
-            log.info(username + "--登录成功");
             return cks;
         } catch (Exception e) {
-//            e.printStackTrace();
-            log.error("登陆失败：" + e.getMessage());
-            return getCookies(username, password);
+            log.error(e.getMessage());
+            if (tryCount < 15) {
+                log.info(username + "第" + (++tryCount) + "次登录重试");
+                return getCookies(username, password, tryCount);
+            }
+            log.error(username + "----" + password + "----超过最大登录次数");
+            return null;
         }
     }
 
