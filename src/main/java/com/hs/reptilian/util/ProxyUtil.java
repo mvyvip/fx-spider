@@ -42,6 +42,7 @@ public class ProxyUtil {
                         if(getCanUsed() < SystemConstant.IP_COUNT) {
                             initIps();
                         }
+                        Thread.sleep(30 * 1000);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -50,7 +51,7 @@ public class ProxyUtil {
         }).start();
     }
 
-    public List<ProxyEntity> initIps() {
+    public synchronized List<ProxyEntity> initIps() {
       try {
           Connection.Response response = Jsoup.connect(SystemConstant.IP_URL)
                   .timeout(SystemConstant.TIME_OUT)
@@ -71,16 +72,16 @@ public class ProxyUtil {
     }
 
     public synchronized Proxy getProxy() {
-        if(getCanUsed() < SystemConstant.IP_COUNT) {
-            initIps();
-        }
-        Iterator<ProxyEntity> iterator = proxyEntities.iterator();
-        while (iterator.hasNext()) {
-            ProxyEntity next = iterator.next();
-            if (next.isExpire()) {
-                iterator.remove();
-            }
-        }
+//        if(getCanUsed() < SystemConstant.IP_COUNT) {
+//            initIps();
+//        }
+//        Iterator<ProxyEntity> iterator = proxyEntities.iterator();
+//        while (iterator.hasNext()) {
+//            ProxyEntity next = iterator.next();
+//            if (next.isExpire()) {
+//                iterator.remove();
+//            }
+//        }
 
         Collections.shuffle(proxyEntities);
         ProxyEntity proxyEntity = proxyEntities.get(0);
@@ -88,7 +89,7 @@ public class ProxyUtil {
         return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyEntity.getIp(), proxyEntity.getPort()));
     }
 
-    public Integer getCanUsed() {
+    public synchronized Integer getCanUsed() {
         Integer count = 0;
         if(CollectionUtils.isNotEmpty(proxyEntities)) {
             for (ProxyEntity proxyEntity : proxyEntities) {
