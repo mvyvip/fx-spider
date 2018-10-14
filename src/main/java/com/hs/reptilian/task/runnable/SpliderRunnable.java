@@ -260,6 +260,7 @@ public class SpliderRunnable implements Runnable {
                         Thread.sleep(1000);
                     } catch (Exception e) {
                         e.printStackTrace();
+                        vcCodeJson = null;
                         System.out.println(e.getMessage());
                     }
                 }
