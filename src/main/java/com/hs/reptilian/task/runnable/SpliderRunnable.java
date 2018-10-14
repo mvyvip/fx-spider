@@ -235,7 +235,6 @@ public class SpliderRunnable implements Runnable {
             @Override
             public void run() {
                 while (initCodeFlag.get()) {
-                    System.out.println(new Date().toLocaleString());
                     try {
                         if (new Date().getMinutes() == 59 && new Date().getSeconds() >= updateCodeSecond
                                 || (vcCodeJson != null && new Date().getTime() >= DateUtils.addSeconds(initCodeDate, 45).getTime())) {
@@ -343,7 +342,7 @@ public class SpliderRunnable implements Runnable {
             return cks;
         } catch (Exception e) {
             log.error(e.getMessage());
-            if (tryCount < 15) {
+            if (tryCount < 20) {
                 info("第" + (++tryCount) + "次登录重试");
                 return getCookies(username, password, tryCount);
             }
