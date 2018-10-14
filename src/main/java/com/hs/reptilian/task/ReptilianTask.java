@@ -1,6 +1,7 @@
 package com.hs.reptilian.task;
 
 import com.hs.reptilian.constant.SystemConfigConstant;
+import com.hs.reptilian.constant.SystemConstant;
 import com.hs.reptilian.model.OrderAccount;
 import com.hs.reptilian.model.SystemConfig;
 import com.hs.reptilian.repository.OrderAccountRepository;
@@ -13,6 +14,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -48,9 +50,12 @@ public class ReptilianTask {
 //        accounts.add(oc);
 
 //        systemConfigRepository.findByKey(SystemConfigConstant.GOODS_URL).getValue();
+        List<Integer> updateCodeSeconds = SystemConstant.UPDATE_CODE_SECONDS;
 
         for (OrderAccount account : accounts) {
-            taskExecutor.execute(new SpliderRunnable(account.getPhone(), account.getPassword(), proxyUtil));
+            for (Integer updateCodeSecond : updateCodeSeconds) {
+                taskExecutor.execute(new SpliderRunnable(account.getPhone(), account.getPassword(), proxyUtil, updateCodeSecond));
+            }
         }
 
     }

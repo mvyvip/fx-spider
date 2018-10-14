@@ -36,10 +36,13 @@ public class SpliderRunnable implements Runnable {
 
     private ProxyUtil proxyUtil;
 
-    public SpliderRunnable(String username, String password, ProxyUtil proxyUtil) {
+    private Integer updateCodeSecond;
+
+    public SpliderRunnable(String username, String password, ProxyUtil proxyUtil, Integer updateCodeSecond) {
         this.username = username;
         this.password = password;
         this.proxyUtil = proxyUtil;
+        this.updateCodeSecond = updateCodeSecond;
     }
 
     private String vcCodeJson;
@@ -75,6 +78,7 @@ public class SpliderRunnable implements Runnable {
 
                 Document document = Jsoup.parse(rsbody);
                 String cart_md5 = getCartMd5(document);
+                info("-addrId: " + addrId + ", vcCodeUrl: " + vcCodeUrl + ", cookies: " + cookies + ", cart_md5:" +  cart_md5);
 
                 AtomicBoolean atomicBoolean = new AtomicBoolean(true);
                 while (atomicBoolean.get()) {
@@ -89,7 +93,6 @@ public class SpliderRunnable implements Runnable {
 
                             System.out.println(vcCodeJson);
                         } else {
-                            initCodeFlag.set(false);
                             System.out.println("提前验证过了： " + vcCodeJson);
                         }
                         String vcode = JSONObject.parseObject(vcCodeJson).getString("Result");
@@ -124,7 +127,6 @@ public class SpliderRunnable implements Runnable {
                                         if (createOrderResponse.body().contains("success")) {
                                             info("抢购成功，请付款!!!!");
                                             atomicBoolean.set(false);
-                                            initCodeFlag.set(false);
                                         }
                                     } catch (Exception e) {
                                     } finally {
@@ -193,6 +195,7 @@ public class SpliderRunnable implements Runnable {
             countDownLatch.countDown();
             info("==============设置成功==============");
             info("-addrId: " + addrId + ", vcCodeUrl: " + vcCodeUrl + ", cookies: " + cookies);
+            initCodeFlag.set(false);
         }
     }
 
@@ -235,7 +238,7 @@ public class SpliderRunnable implements Runnable {
                 while (initCodeFlag.get()) {
                     System.out.println(new Date().toLocaleString());
                     try {
-                        if (new Date().getMinutes() == 59 && new Date().getSeconds() >= SystemConstant.SYNC_CODE_SECONDS
+                        if (new Date().getMinutes() == 59 && new Date().getSeconds() >= updateCodeSecond
                                 || (vcCodeJson != null && new Date().getTime() >= DateUtils.addSeconds(initCodeDate, 45).getTime())) {
                             info("开始提前验证码");
                             initCodeDate = new Date();
@@ -250,7 +253,7 @@ public class SpliderRunnable implements Runnable {
                             /** 防止使用途中被二次更新 */
                             Thread.sleep(35 * 1000);
                         }
-                        Thread.sleep(10000);
+                        Thread.sleep(1000);
                     } catch (Exception e) {
                         e.printStackTrace();
                         System.out.println(e.getMessage());

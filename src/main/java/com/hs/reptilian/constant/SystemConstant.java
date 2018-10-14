@@ -1,10 +1,13 @@
 package com.hs.reptilian.constant;
 
+import java.util.Arrays;
+import java.util.List;
+
 public interface SystemConstant {
 
-    int TASK_COUNT = 3;
+    List<Integer> UPDATE_CODE_SECONDS = Arrays.asList(35, 45, 55);
 
-    int SYNC_CODE_SECONDS = 33;
+    int TASK_COUNT = 3;
 
     int TIME_OUT = 30000;
 
