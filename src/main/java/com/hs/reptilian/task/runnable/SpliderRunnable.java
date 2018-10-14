@@ -4,22 +4,17 @@ import com.alibaba.fastjson.JSONObject;
 import com.hs.reptilian.constant.SystemConstant;
 import com.hs.reptilian.util.ProxyUtil;
 import com.hs.reptilian.util.RuoKuaiUtils;
-import lombok.AllArgsConstructor;
+import com.hs.reptilian.util.feifei.FeiFeiUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.time.DateParser;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -84,18 +79,23 @@ public class SpliderRunnable implements Runnable {
                 while (atomicBoolean.get()) {
                     try {
                         if (StringUtils.isEmpty(vcCodeJson) || (new Date().getTime() >= DateUtils.addSeconds(initCodeDate, 45).getTime())) {
-                            vcCodeJson = RuoKuaiUtils.createByPost("2980364030", "li5201314", "4030", "9500", "112405", "e68297ecf19c4f418184df5b8ce1c31e",
+                            /*vcCodeJson = RuoKuaiUtils.createByPost("2980364030", "li5201314", "4030", "9500", "112405", "e68297ecf19c4f418184df5b8ce1c31e",
                                     Jsoup.connect(vcCodeUrl)
                                             .ignoreContentType(true)
                                             .cookies(cookies)
                                             .proxy(proxyUtil.getProxy())
-                                            .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());
+                                            .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());*/
+                            vcCodeJson = FeiFeiUtil.validate(Jsoup.connect(vcCodeUrl)
+                                    .ignoreContentType(true)
+                                    .cookies(cookies)
+                                    .proxy(proxyUtil.getProxy())
+                                    .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());
 
-                            System.out.println(vcCodeJson);
+                            info("验证成功：" + vcCodeJson);
                         } else {
-                            System.out.println("提前验证过了： " + vcCodeJson);
+                            info("提前验证过了： " + vcCodeJson);
                         }
-                        String vcode = JSONObject.parseObject(vcCodeJson).getString("Result");
+                        String vcode = new String(vcCodeJson);
                         vcCodeJson = null;
                         // ===========           下单         ==============
                         CountDownLatch cd = new CountDownLatch(SystemConstant.TASK_COUNT);
@@ -183,7 +183,6 @@ public class SpliderRunnable implements Runnable {
                     }
                 }).start();
             } catch (Exception e) {
-
             }
         }
         return rsbody;
@@ -242,16 +241,21 @@ public class SpliderRunnable implements Runnable {
                                 || (vcCodeJson != null && new Date().getTime() >= DateUtils.addSeconds(initCodeDate, 45).getTime())) {
                             info("开始提前验证码");
                             initCodeDate = new Date();
-                            vcCodeJson = RuoKuaiUtils.createByPost("2980364030", "li5201314", "4030", "9500", "112405", "e68297ecf19c4f418184df5b8ce1c31e",
+                          /*  vcCodeJson = RuoKuaiUtils.createByPost("2980364030", "li5201314", "4030", "9500", "112405", "e68297ecf19c4f418184df5b8ce1c31e",
                                     Jsoup.connect(vcCodeUrl)
                                             .ignoreContentType(true)
                                             .cookies(cookies)
                                             .proxy(proxyUtil.getProxy())
-                                            .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());
+                                            .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());*/
+                            vcCodeJson = FeiFeiUtil.validate(Jsoup.connect(vcCodeUrl)
+                                    .ignoreContentType(true)
+                                    .cookies(cookies)
+                                    .proxy(proxyUtil.getProxy())
+                                    .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());
 
                             info("提前验证码成功：" + vcCodeJson);
                             /** 防止使用途中被二次更新 */
-                            Thread.sleep(35 * 1000);
+                            Thread.sleep(44 * 1000);
                         }
                         Thread.sleep(1000);
                     } catch (Exception e) {
@@ -338,7 +342,7 @@ public class SpliderRunnable implements Runnable {
             return cks;
         } catch (Exception e) {
             log.error(e.getMessage());
-            if (tryCount < 3) {
+            if (tryCount < 15) {
                 info("第" + (++tryCount) + "次登录重试");
                 return getCookies(username, password, tryCount);
             }

@@ -39,7 +39,7 @@ public class ReptilianTask {
         startTask();
     }
 
-    private void startTask() throws Exception {
+    private void startTask() {
         log.info("项目初始化中-----------------------------");
         List<OrderAccount> accounts = orderAccountRepository.findAll();
 
@@ -59,8 +59,6 @@ public class ReptilianTask {
         }
 
     }
-
-
 
 
 }
