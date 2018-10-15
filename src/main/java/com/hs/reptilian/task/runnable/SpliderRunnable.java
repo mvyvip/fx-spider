@@ -155,7 +155,6 @@ public class SpliderRunnable implements Runnable {
                     } catch (Exception e) {
                         log.error("下单失败： " + e.getMessage());
                     }
-
                 }
 
             }
