@@ -74,7 +74,7 @@ public class SpliderRunnable implements Runnable {
                 cookieUtils.saveCookie(new OrderAccount(username, password), cookies);
             }
             if (MapUtils.isNotEmpty(cookies) && isNotOrdered(cookies) && vcIsEnough(cookies) && initData(cookies)) {
-//                initBody(cookies);
+                initBody(cookies);
 
                 try {
                     countDownLatch.await();
