@@ -13,8 +13,7 @@ public interface SystemConstant {
 
     int THREAD_WAIT_TIME = 400;
 
-//    int IP_COUNT = 100;
-    int IP_COUNT = 10;
+    int IP_COUNT = 100;
 
 
     String K2_VC = "16000";

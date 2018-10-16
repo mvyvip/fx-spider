@@ -136,7 +136,7 @@ public class SpliderRunnable implements Runnable {
                                                 .data("vcode", vcode)
                                                 .execute();
                                         System.err.println("==========================================================");
-                                        System.err.println(createOrderResponse.body());
+                                        System.err.println(JSONObject.parseObject(createOrderResponse.body()));
                                         if (createOrderResponse.body().contains("success")) {
                                             info("抢购成功，请付款!!!!");
                                             atomicBoolean.set(false);
