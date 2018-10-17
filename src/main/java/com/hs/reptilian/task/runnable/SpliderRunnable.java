@@ -273,12 +273,6 @@ public class SpliderRunnable implements Runnable {
                                 || (vcCodeJson != null && new Date().getTime() >= DateUtils.addSeconds(initCodeDate, 45).getTime())) {
                             info("开始提前验证码");
                             initCodeDate = new Date();
-                          /*  vcCodeJson = RuoKuaiUtils.createByPost("2980364030", "li5201314", "4030", "9500", "112405", "e68297ecf19c4f418184df5b8ce1c31e",
-                                    Jsoup.connect(vcCodeUrl)
-                                            .ignoreContentType(true)
-                                            .cookies(cookies)
-                                            .proxy(proxyUtil.getProxy())
-                                            .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());*/
                             vcCodeJson = FeiFeiUtil.validate(Jsoup.connect(vcCodeUrl)
                                     .ignoreContentType(true)
                                     .cookies(cookies)
