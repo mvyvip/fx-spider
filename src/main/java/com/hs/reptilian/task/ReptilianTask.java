@@ -6,9 +6,7 @@ import com.hs.reptilian.model.OrderAccount;
 import com.hs.reptilian.model.SystemConfig;
 import com.hs.reptilian.repository.OrderAccountRepository;
 import com.hs.reptilian.repository.SystemConfigRepository;
-import com.hs.reptilian.repository.TaskListRepository;
 import com.hs.reptilian.task.runnable.SpliderRunnable;
-import com.hs.reptilian.util.CookieUtils;
 import com.hs.reptilian.util.ProxyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +33,6 @@ public class ReptilianTask {
     @Autowired
     private SystemConfigRepository systemConfigRepository;
 
-    @Autowired
-    private TaskListRepository taskListRepository;
-
-    @Autowired
-    private CookieUtils cookieUtils;
-
     @PostConstruct
     public void start() throws Exception {
         proxyUtil.initIps();
@@ -62,7 +54,7 @@ public class ReptilianTask {
 
         for (OrderAccount account : accounts) {
             for (Integer updateCodeSecond : updateCodeSeconds) {
-                taskExecutor.execute(new SpliderRunnable(account.getPhone(), account.getPassword(), proxyUtil, updateCodeSecond, taskListRepository, cookieUtils));
+                taskExecutor.execute(new SpliderRunnable(account.getPhone(), account.getPassword(), proxyUtil, updateCodeSecond));
             }
         }
 

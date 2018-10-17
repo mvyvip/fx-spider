@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.hs.reptilian.constant.SystemConstant;
 import com.hs.reptilian.model.OrderAccount;
 import com.hs.reptilian.repository.OrderAccountRepository;
-import com.hs.reptilian.util.CookieUtils;
 import com.hs.reptilian.util.ProxyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,9 +34,6 @@ public class FxController {
 
     @Autowired
     private ProxyUtil proxyUtil;
-
-    @Autowired
-    private CookieUtils cookieUtils;
 
     @GetMapping("/init")
     public Object initAddress() {
@@ -112,90 +107,6 @@ public class FxController {
         List<OrderAccount> needGet = new ArrayList<>();
         List<OrderAccount> orderAccountList = orderRepository.findAll(Sort.by("createDate").descending());
 
-        ConcurrentMap<OrderAccount, Map<String, String>> accountMapConcurrentMap = cookieUtils.getCookies();
-        CountDownLatch countDownLatch = new CountDownLatch(accountMapConcurrentMap.size());
-        for (Map.Entry<OrderAccount, Map<String, String>> entry : accountMapConcurrentMap.entrySet()) {
-            try {
-                Map<String, String> cookies = entry.getValue();
-                OrderAccount orderAccount = entry.getKey();
-                orderAccount.setCookie(cookies.get("_SID"));
-                String vc = getVc(cookies);
-                Connection.Response response = getOrders(cookies);
-                orderAccount.setVc(vc);
-                if(response.body().contains("暂无")) {
-                    needGet.add(orderAccount);
-                    log.info(orderAccount.getPhone() + "----" + orderAccount.getPassword() + "----无订单");
-                } else {
-                    Document document = Jsoup.parse(response.body());
-                    Elements tables = document.getElementsByTag("table");
-
-                    boolean flag = true;
-                    for (int i = 1; i < tables.size(); i++) {
-                        OrderAccount order = new OrderAccount();
-                        order.setVc(vc);
-                        Element table = tables.get(i);
-
-                        Elements elements = table.getElementsByClass("text-muted");
-                        order.setPhone(orderAccount.getPhone());
-                        order.setPassword(orderAccount.getPassword());
-                        order.setGoodsName(elements.get(1).text().trim());
-                        order.setOrderNo(elements.get(0).text().replaceAll("  ", "").trim());
-                        order.setOrderCreateDate(table.getElementsByTag("li").get(1).text().trim());
-                        order.setStatus(table.getElementsByTag("span").text().trim());
-                        order.setCookie(orderAccount.getCookie());
-                        Date date = DateUtils.parseDateStrictly(order.getOrderCreateDate(), "yyyy-MM-dd HH:mm");
-
-                        Elements as = table.getElementsByTag("a");
-                        for (Element a : as) {
-                            if(a.text().contains("确认收货")) {
-                                String href = a.attr("href");
-                                Connection.Response execute = Jsoup.connect("https://mall.phicomm.com" + href)
-                                        .cookies(cookies)
-                                        .timeout(SystemConstant.TIME_OUT)
-                                        .proxy(proxyUtil.getProxy())
-                                        .execute();
-                                if(execute.body().contains("订单确认收货成功")) {
-                                    log.info(orderAccount.getPhone() + "--- " + "收货成功");
-                                } else {
-                                    log.info(orderAccount.getPhone() + " ----" + orderAccount.getPassword() + "--- " + "收货失败");
-                                }
-                            }
-                        }
-
-
-                        if(date.getTime() > DateUtils.addDays(new Date(), -7).getTime() && !order.getStatus().equals("已取消")) {
-                            Elements aElements = table.getElementsByTag("a");
-                            setDetail(cookies, aElements, order, 0);
-                            order.setOrderCreateDate(table.getElementsByTag("li").get(1).text().trim());
-                            flag = false;
-
-                            if(StringUtils.isNotEmpty(name) && !order.getAddress().contains(name)) {
-                                continue;
-                            }
-
-                            if(StringUtils.isNotEmpty(type)) {
-                                if(type.equals("1")  && !order.getLogisticsInfo().contains("签收")) {
-                                    continue;
-                                } else if(type.equals("2") && order.getLogisticsInfo().contains("签收")) {
-                                    continue;
-                                }
-                            }
-                            orders.add(order);
-                        }
-                    }
-                    if(flag) {
-                        needGet.add(orderAccount);
-                    }
-                }
-            } catch (Exception e){
-                log.error("登录失败： " + e.getMessage() + "---" + entry.getKey());
-            } finally {
-                countDownLatch.countDown();
-            }
-
-        }
-        countDownLatch.await();
-
         AtomicInteger atomicInteger = new AtomicInteger(0);
         for (OrderAccount orderAccount : orderAccountList) {
             new Thread(new Runnable() {
@@ -204,7 +115,73 @@ public class FxController {
                     try {
                         Map<String, String> cookies = getCookies(orderAccount.getPhone(), orderAccount.getPassword(), 0);
                         if(MapUtils.isNotEmpty(cookies)) {
+                            String vc = getVc(cookies);
+                            Connection.Response response = getOrders(cookies);
+                            orderAccount.setVc(vc);
+                            if(response.body().contains("暂无")) {
+                                needGet.add(orderAccount);
+                                log.info(orderAccount.getPhone() + "----" + orderAccount.getPassword() + "----无订单");
+                            } else {
+                                Document document = Jsoup.parse(response.body());
+                                Elements tables = document.getElementsByTag("table");
 
+                                boolean flag = true;
+                                for (int i = 1; i < tables.size(); i++) {
+                                    OrderAccount order = new OrderAccount();
+                                    order.setVc(vc);
+                                    Element table = tables.get(i);
+
+                                    Elements elements = table.getElementsByClass("text-muted");
+                                    order.setPhone(orderAccount.getPhone());
+                                    order.setPassword(orderAccount.getPassword());
+                                    order.setGoodsName(elements.get(1).text().trim());
+                                    order.setOrderNo(elements.get(0).text().replaceAll("  ", "").trim());
+                                    order.setOrderCreateDate(table.getElementsByTag("li").get(1).text().trim());
+                                    order.setStatus(table.getElementsByTag("span").text().trim());
+                                    Date date = DateUtils.parseDateStrictly(order.getOrderCreateDate(), "yyyy-MM-dd HH:mm");
+
+                                    Elements as = table.getElementsByTag("a");
+                                    for (Element a : as) {
+                                        if(a.text().contains("确认收货")) {
+                                            String href = a.attr("href");
+                                            Connection.Response execute = Jsoup.connect("https://mall.phicomm.com" + href)
+                                                    .cookies(cookies)
+                                                    .timeout(SystemConstant.TIME_OUT)
+                                                    .proxy(proxyUtil.getProxy())
+                                                    .execute();
+                                            if(execute.body().contains("订单确认收货成功")) {
+                                                log.info(orderAccount.getPhone() + "--- " + "收货成功");
+                                            } else {
+                                                log.info(orderAccount.getPhone() + " ----" + orderAccount.getPassword() + "--- " + "收货失败");
+                                            }
+                                        }
+                                    }
+
+
+                                    if(date.getTime() > DateUtils.addDays(new Date(), -7).getTime() && !order.getStatus().equals("已取消")) {
+                                        Elements aElements = table.getElementsByTag("a");
+                                        setDetail(cookies, aElements, order, 0);
+                                        order.setOrderCreateDate(table.getElementsByTag("li").get(1).text().trim());
+                                        flag = false;
+
+                                        if(StringUtils.isNotEmpty(name) && !order.getAddress().contains(name)) {
+                                            continue;
+                                        }
+
+                                        if(StringUtils.isNotEmpty(type)) {
+                                            if(type.equals("1")  && !order.getLogisticsInfo().contains("签收")) {
+                                                continue;
+                                            } else if(type.equals("2") && order.getLogisticsInfo().contains("签收")) {
+                                                continue;
+                                            }
+                                        }
+                                        orders.add(order);
+                                    }
+                                }
+                                if(flag) {
+                                    needGet.add(orderAccount);
+                                }
+                            }
                         }
                     } catch (Exception e) {
                         log.error("登录失败： " + e.getMessage());
@@ -214,6 +191,12 @@ public class FxController {
                 }
             }).start();
         }
+
+
+        while (!(atomicInteger.get() == orderAccountList.size())) {
+            // 等待线程执行完毕
+        }
+        System.out.println("开始");
 
         needGet.stream().forEach(orderAccount -> {
             System.err.println(orderAccount.getPhone() + "----" + orderAccount.getPassword() + "----" + orderAccount.getVc());
@@ -293,7 +276,7 @@ public class FxController {
             return cks;
         } catch (Exception e) {
             log.error(e.getMessage());
-            if (tryCount < 50) {
+            if (tryCount < 15) {
                 log.info(username + "第" + (++tryCount) + "次登录重试");
                 return getCookies(username, password, tryCount);
             }

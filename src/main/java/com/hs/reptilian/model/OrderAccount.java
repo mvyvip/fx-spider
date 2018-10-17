@@ -11,12 +11,6 @@ import java.util.Date;
 @Table(name = "fx_order_account")
 public class OrderAccount {
 
-    public OrderAccount() {}
-    public OrderAccount(String phone, String password) {
-        this.phone = phone;
-        this.password = password;
-    }
-
     @Id
     @GeneratedValue
     private Integer id;
@@ -52,9 +46,6 @@ public class OrderAccount {
 
     @Transient
     private String status;
-
-    @Transient
-    private String cookie;
 
     @Column(name = "create_date")
     private Date createDate;

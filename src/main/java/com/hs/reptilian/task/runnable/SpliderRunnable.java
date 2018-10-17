@@ -2,10 +2,6 @@ package com.hs.reptilian.task.runnable;
 
 import com.alibaba.fastjson.JSONObject;
 import com.hs.reptilian.constant.SystemConstant;
-import com.hs.reptilian.model.OrderAccount;
-import com.hs.reptilian.model.TaskList;
-import com.hs.reptilian.repository.TaskListRepository;
-import com.hs.reptilian.util.CookieUtils;
 import com.hs.reptilian.util.ProxyUtil;
 import com.hs.reptilian.util.RuoKuaiUtils;
 import com.hs.reptilian.util.feifei.FeiFeiUtil;
@@ -37,13 +33,11 @@ public class SpliderRunnable implements Runnable {
 
     private Integer updateCodeSecond;
 
-    public SpliderRunnable(String username, String password, ProxyUtil proxyUtil, Integer updateCodeSecond, TaskListRepository taskListRepository, CookieUtils cookieUtils) {
+    public SpliderRunnable(String username, String password, ProxyUtil proxyUtil, Integer updateCodeSecond) {
         this.username = username;
         this.password = password;
         this.proxyUtil = proxyUtil;
         this.updateCodeSecond = updateCodeSecond;
-        this.taskListRepository = taskListRepository;
-        this.cookieUtils = cookieUtils;
     }
 
     private String vcCodeJson;
@@ -62,17 +56,10 @@ public class SpliderRunnable implements Runnable {
 
     private AtomicBoolean initCodeFlag = new AtomicBoolean(true);
 
-    private TaskListRepository taskListRepository;
-
-    private CookieUtils cookieUtils;
-
     @Override
     public void run() {
         try {
             cookies = getCookies(username, password, 0);
-            if(MapUtils.isNotEmpty(cookies)) {
-                cookieUtils.saveCookie(new OrderAccount(username, password), cookies);
-            }
             if (MapUtils.isNotEmpty(cookies) && isNotOrdered(cookies) && vcIsEnough(cookies) && initData(cookies)) {
                 initBody(cookies);
 
@@ -136,7 +123,7 @@ public class SpliderRunnable implements Runnable {
                                                 .data("vcode", vcode)
                                                 .execute();
                                         System.err.println("==========================================================");
-                                        System.err.println(JSONObject.parseObject(createOrderResponse.body()));
+                                        System.err.println(createOrderResponse.body());
                                         if (createOrderResponse.body().contains("success")) {
                                             info("抢购成功，请付款!!!!");
                                             atomicBoolean.set(false);
@@ -155,11 +142,11 @@ public class SpliderRunnable implements Runnable {
                     } catch (Exception e) {
                         log.error("下单失败： " + e.getMessage());
                     }
+
                 }
 
             }
         } catch (Exception e) {
-            e.printStackTrace();
             info("线程启动失败---" + e.getMessage());
             run();
         }
@@ -208,29 +195,9 @@ public class SpliderRunnable implements Runnable {
             info("==============设置成功==============");
             info("-addrId: " + addrId + ", vcCodeUrl: " + vcCodeUrl + ", cookies: " + cookies);
             initCodeFlag.set(false);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-
-                    Document document = Jsoup.parse(rsbody);
-                    String cart_md5 = getCartMd5(document);
-
-                    TaskList taskList = TaskList.builder().addrId(addrId)
-                            .cartMd5(cart_md5)
-                            .cookies(cookies.toString().replaceAll(",", ";").replaceAll("\\{", "").replaceAll("\\}", ""))
-                            .addrId(addrId)
-                            .mobile(username)
-                            .password(password)
-                            .vc(SystemConstant.VC)
-                            .vcCodeUrl(vcCodeUrl)
-                            .createDate(new Date())
-                            .build();
-                    taskListRepository.save(taskList);
-                    log.info("保存任务信息成功：{}", taskList);
-                }
-            }).start();
         }
     }
+
 
     private boolean initData(Map<String, String> cookies) {
         try {
@@ -273,6 +240,12 @@ public class SpliderRunnable implements Runnable {
                                 || (vcCodeJson != null && new Date().getTime() >= DateUtils.addSeconds(initCodeDate, 45).getTime())) {
                             info("开始提前验证码");
                             initCodeDate = new Date();
+                          /*  vcCodeJson = RuoKuaiUtils.createByPost("2980364030", "li5201314", "4030", "9500", "112405", "e68297ecf19c4f418184df5b8ce1c31e",
+                                    Jsoup.connect(vcCodeUrl)
+                                            .ignoreContentType(true)
+                                            .cookies(cookies)
+                                            .proxy(proxyUtil.getProxy())
+                                            .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());*/
                             vcCodeJson = FeiFeiUtil.validate(Jsoup.connect(vcCodeUrl)
                                     .ignoreContentType(true)
                                     .cookies(cookies)
@@ -368,7 +341,8 @@ public class SpliderRunnable implements Runnable {
             cks.putAll(loginResponse.cookies());
             return cks;
         } catch (Exception e) {
-            if (tryCount < 50) {
+            log.error(e.getMessage());
+            if (tryCount < 20) {
                 info("第" + (++tryCount) + "次登录重试");
                 return getCookies(username, password, tryCount);
             }

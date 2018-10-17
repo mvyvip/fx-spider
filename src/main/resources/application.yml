@@ -19,6 +19,3 @@ logging:
     root: info
   path: logs
   file: fx.log
-
-server:
-  port: ${random.int[7000,9999]}
