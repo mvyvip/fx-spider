@@ -4,6 +4,4 @@ public interface SystemConfigConstant {
 
     String GOODS_URL = "GOODS_URL";
 
-
-
 }

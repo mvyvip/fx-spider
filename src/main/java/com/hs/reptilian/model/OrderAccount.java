@@ -11,6 +11,13 @@ import java.util.Date;
 @Table(name = "fx_order_account")
 public class OrderAccount {
 
+    public OrderAccount() {}
+
+    public OrderAccount(String phone, String password) {
+        this.phone = phone;
+        this.password = password;
+    }
+
     @Id
     @GeneratedValue
     private Integer id;
@@ -44,7 +51,6 @@ public class OrderAccount {
 
     private String orderNo;
 
-    @Transient
     private String status;
 
     @Column(name = "create_date")
@@ -53,4 +59,8 @@ public class OrderAccount {
     @Transient
     private String orderCreateDate;
 
+    private String remark;
+
+    @Transient
+    private String cookie;
 }

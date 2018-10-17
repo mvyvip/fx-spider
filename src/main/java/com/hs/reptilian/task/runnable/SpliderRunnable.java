@@ -2,8 +2,10 @@ package com.hs.reptilian.task.runnable;
 
 import com.alibaba.fastjson.JSONObject;
 import com.hs.reptilian.constant.SystemConstant;
+import com.hs.reptilian.model.OrderAccount;
+import com.hs.reptilian.repository.TaskListRepository;
+import com.hs.reptilian.util.CookieUtils;
 import com.hs.reptilian.util.ProxyUtil;
-import com.hs.reptilian.util.RuoKuaiUtils;
 import com.hs.reptilian.util.feifei.FeiFeiUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
@@ -33,11 +35,20 @@ public class SpliderRunnable implements Runnable {
 
     private Integer updateCodeSecond;
 
-    public SpliderRunnable(String username, String password, ProxyUtil proxyUtil, Integer updateCodeSecond) {
+    private String goods;
+
+    private String goodsUrl;
+
+    private String vc;
+
+    public SpliderRunnable(String username, String password, ProxyUtil proxyUtil, Integer updateCodeSecond, String goods, String goodsUrl, String vc) {
         this.username = username;
         this.password = password;
         this.proxyUtil = proxyUtil;
         this.updateCodeSecond = updateCodeSecond;
+        this.goods = goods;
+        this.goodsUrl = goodsUrl;
+        this.vc = vc;
     }
 
     private String vcCodeJson;
@@ -61,39 +72,24 @@ public class SpliderRunnable implements Runnable {
         try {
             cookies = getCookies(username, password, 0);
             if (MapUtils.isNotEmpty(cookies) && isNotOrdered(cookies) && vcIsEnough(cookies) && initData(cookies)) {
+                CookieUtils.addCookies(new OrderAccount(username, password), cookies);
                 initBody(cookies);
 
-                try {
-                    countDownLatch.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                info("进入下单");
+                countDownLatch.await();
 
                 Document document = Jsoup.parse(rsbody);
                 String cart_md5 = getCartMd5(document);
-                info("-addrId: " + addrId + ", vcCodeUrl: " + vcCodeUrl + ", cookies: " + cookies + ", cart_md5:" +  cart_md5);
 
                 AtomicBoolean atomicBoolean = new AtomicBoolean(true);
                 while (atomicBoolean.get()) {
                     try {
-                        if (StringUtils.isEmpty(vcCodeJson) || (new Date().getTime() >= DateUtils.addSeconds(initCodeDate, 45).getTime())) {
-                            /*vcCodeJson = RuoKuaiUtils.createByPost("2980364030", "li5201314", "4030", "9500", "112405", "e68297ecf19c4f418184df5b8ce1c31e",
-                                    Jsoup.connect(vcCodeUrl)
-                                            .ignoreContentType(true)
-                                            .cookies(cookies)
-                                            .proxy(proxyUtil.getProxy())
-                                            .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());*/
+                        if (StringUtils.isEmpty(vcCodeJson) || (new Date().getTime() >= DateUtils.addSeconds(initCodeDate, 44).getTime())) {
                             vcCodeJson = FeiFeiUtil.validate(Jsoup.connect(vcCodeUrl)
                                     .ignoreContentType(true)
                                     .cookies(cookies)
                                     .proxy(proxyUtil.getProxy())
                                     .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());
 
-                            info("验证成功：" + vcCodeJson);
-                        } else {
-                            info("提前验证过了： " + vcCodeJson);
                         }
                         String vcode = new String(vcCodeJson);
                         vcCodeJson = null;
@@ -116,33 +112,30 @@ public class SpliderRunnable implements Runnable {
                                                 .data("yougouma", "")
                                                 .data("invoice_type", "")
                                                 .data("invoice_title", "")
-                                                .data("useVcNum", SystemConstant.VC)
+                                                .data("useVcNum", vc)
                                                 .data("need_invoice2", "on")
                                                 .data("useDdwNum", "0")
                                                 .data("memo", "")
                                                 .data("vcode", vcode)
                                                 .execute();
-                                        System.err.println("==========================================================");
-                                        System.err.println(createOrderResponse.body());
+                                        info(JSONObject.parseObject(createOrderResponse.body()).toJSONString());
+                                        CookieUtils.addTask(username, password, vcCodeUrl, addrId, vc, cart_md5, cookies);
                                         if (createOrderResponse.body().contains("success")) {
-                                            info("抢购成功，请付款!!!!");
+                                            info("抢购成功，请付款!!!!" + cookies.get("_SID"));
                                             atomicBoolean.set(false);
                                         }
                                     } catch (Exception e) {
                                     } finally {
+                                        info("-addrId: " + addrId + ", vcCodeUrl: " + vcCodeUrl + ", cookies: " + cookies + ", cart_md5:" +  cart_md5);
                                         cd.countDown();
                                     }
                                 }
                             }).start();
                         }
                         cd.await();
-                        if(atomicBoolean.get()) {
-                            log.info("下单不成功，重试中");
-                        }
                     } catch (Exception e) {
                         log.error("下单失败： " + e.getMessage());
                     }
-
                 }
 
             }
@@ -155,7 +148,6 @@ public class SpliderRunnable implements Runnable {
     private static String getCartMd5(Document document) {
         for (Element element : document.getElementsByTag("input")) {
             if (element.attr("name").equals("cart_md5")) {
-                System.err.println("cart_md5获取成功：" + element.attr("value"));
                 return element.attr("value");
             }
         }
@@ -170,7 +162,7 @@ public class SpliderRunnable implements Runnable {
                     @Override
                     public void run() {
                         try {
-                            String body = Jsoup.connect(SystemConstant.URL).method(Connection.Method.GET)
+                            String body = Jsoup.connect(goodsUrl).method(Connection.Method.GET)
                                     .proxy(proxyUtil.getProxy())
                                     .timeout(SystemConstant.TIME_OUT).cookies(cookies).followRedirects(true).execute().body();
                             if (body.contains("库存不足,当前最多可售数量")) {
@@ -192,8 +184,6 @@ public class SpliderRunnable implements Runnable {
         if (rsbody == null) {
             rsbody = body;
             countDownLatch.countDown();
-            info("==============设置成功==============");
-            info("-addrId: " + addrId + ", vcCodeUrl: " + vcCodeUrl + ", cookies: " + cookies);
             initCodeFlag.set(false);
         }
     }
@@ -270,9 +260,9 @@ public class SpliderRunnable implements Runnable {
 
     private boolean vcIsEnough(Map<String, String> cookies) {
         String vc = getVc(cookies);
-        if (Integer.parseInt(vc) < Integer.parseInt(SystemConstant.VC)) {
+        if (Integer.parseInt(vc) < Integer.parseInt(vc)) {
             log.info("phone: {}, password: {}, 抢购[{}], 需要vc{}, 可用vc{}",
-                    username, password, SystemConstant.DESC, SystemConstant.VC, vc);
+                    username, password, goods, vc, vc);
             return false;
         }
         return true;
@@ -300,11 +290,10 @@ public class SpliderRunnable implements Runnable {
                 Document document = Jsoup.parse(response.body());
                 Element table1 = document.getElementsByTag("table").get(1);
                 Date date = DateUtils.parseDateStrictly(table1.getElementsByTag("li").get(1).text().trim(), "yyyy-MM-dd HH:mm");
-                if (table1.text().contains(SystemConstant.DESC) && (!table1.text().contains("已取消")) && date.getTime() > DateUtils.addDays(new Date(), -7).getTime()) {
-                    log.info(username + "----" + password + "----已抢购---" + SystemConstant.DESC);
+                if (table1.text().contains(goods) && (!table1.text().contains("已取消")) && date.getTime() > DateUtils.addDays(new Date(), -7).getTime()) {
+                    log.info(username + "----" + password + "----已抢购---" + goods);
                     return false;
                 }
-                info("参与抢购");
                 return true;
 
             }
@@ -342,7 +331,7 @@ public class SpliderRunnable implements Runnable {
             return cks;
         } catch (Exception e) {
             log.error(e.getMessage());
-            if (tryCount < 20) {
+            if (tryCount < 70) {
                 info("第" + (++tryCount) + "次登录重试");
                 return getCookies(username, password, tryCount);
             }

@@ -11,9 +11,10 @@ public interface SystemConstant {
 
     int TIME_OUT = 30000;
 
-    int THREAD_WAIT_TIME = 400;
+    int THREAD_WAIT_TIME = 200;
 
     int IP_COUNT = 100;
+//    int IP_COUNT = 10;
 
 
     String K2_VC = "16000";
@@ -32,8 +33,10 @@ public interface SystemConstant {
 
     String IP_URL = "http://h.wandouip.com/get/ip-list?pack=0&num=" + IP_COUNT + "&xy=2&type=2&lb=\\r\\n&mr=2&app_key=f0c35c13b2fffac65e411939bc2de921";
 
-    String URL = W1_URL;
-    String VC = W1_VC;
-    String DESC = "W1";
+    String GOODS_URL = "https://mall.phicomm.com/cart-fastbuy-{0}-1.html";
+
+    //    String URL = W1_URL;
+//    String VC = W1_VC;
+//    String DESC = "W1";
 
 }
