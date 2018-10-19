@@ -122,14 +122,14 @@ public class FxController {
                @Override
                public void run() {
                    try {
-                       Map<String, String> cookies = getCookies(orderAccount.getUsername(), orderAccount.getPassword(), 0);
+                       Map<String, String> cookies = getCookies(orderAccount.getPhone(), orderAccount.getPassword(), 0);
                        Connection.Response execute = Jsoup.connect("https://mall.phicomm.com/my-receiver-save.html").method(Connection.Method.POST).cookies(cookies)
                                .timeout(SystemConstant.TIME_OUT)
                                .ignoreContentType(true)
-                               .data("maddr[name]", "张雷")
-                               .data("maddr[mobile]", "17074639890")
-                               .data("maddr[area]", "mainland:湖北省/黄石市/铁山区:1891")
-                               .data("maddr[addr]", "湖北省黄石市铁山区龙渠湾横城超市代收")
+                               .data("maddr[name]", "刘正周")
+                               .data("maddr[mobile]", "13863749494")
+                               .data("maddr[area]", "mainland:山东省/济宁市/微山县:1583")
+                               .data("maddr[addr]", "山东省济宁市微山县苏园一村32号楼1单元888号-诗人")
                                .data("maddr[is_default]", "true")
 //					.data("maddr[name]", "冷先生")
 //					.data("maddr[mobile]", "15879299250")
