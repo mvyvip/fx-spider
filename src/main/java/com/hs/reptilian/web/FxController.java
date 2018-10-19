@@ -419,7 +419,7 @@ public class FxController {
             return cks;
         } catch (Exception e) {
             log.error(e.getMessage());
-            if (tryCount < 20) {
+            if (tryCount < 40) {
                 log.info(username + "第" + (++tryCount) + "次登录重试");
                 return getCookies(username, password, tryCount);
             }
