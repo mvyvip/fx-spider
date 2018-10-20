@@ -77,23 +77,26 @@ public class ReptilianTask {
         accounts.add(oc3);*/
 
         List<Integer> updateCodeSeconds = SystemConstant.UPDATE_CODE_SECONDS;
-        for (OrderAccount account : accounts) {
-            if(StringUtils.isNotEmpty(account.getStatus()) && account.getStatus().equals("2")) {
-                log.info("被禁用:[{}]", account);
-            } else {
-                for (Integer updateCodeSecond : updateCodeSeconds) {
-                    taskExecutor.execute(new SpliderRunnable(account.getPhone(), account.getPassword(), proxyUtil, updateCodeSecond, goods, goodsUrl, vc));
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (OrderAccount account : accounts) {
+                    try {
+                        if(StringUtils.isNotEmpty(account.getStatus()) && account.getStatus().equals("2")) {
+                            log.info("被禁用:[{}]", account);
+                        } else {
+                            for (Integer updateCodeSecond : updateCodeSeconds) {
+                                taskExecutor.execute(new SpliderRunnable(account.getPhone(), account.getPassword(), proxyUtil, updateCodeSecond, goods, goodsUrl, vc));
+                            }
+                        }
+                    } catch (Exception e){
+                        e.printStackTrace();
+                        log.info("初始化抢购失败：" + e.fillInStackTrace());
+                    }
                 }
             }
-
-        }
-
+        }).start();
     }
-
-    public static void main(String[] args) {
-        String format = MessageFormat.format("xxx{0}xxx{1}", "a", "b");
-        System.out.println(format);
-    }
-
 
 }
