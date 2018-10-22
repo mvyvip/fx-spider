@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface SystemConstant {
 
-    List<Integer> UPDATE_CODE_SECONDS = Arrays.asList(35, 45, 55);
+    List<Integer> UPDATE_CODE_SECONDS = Arrays.asList(55);
 
     int TASK_COUNT = 3;
 

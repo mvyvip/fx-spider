@@ -41,11 +41,10 @@ public class ReptilianTask {
 
     @PostConstruct
     public void start() throws Exception {
-        proxyUtil.initIps();
         startTask();
     }
 
-    private void startTask() {
+    private void startTask() throws InterruptedException {
         String[] values = systemConfigRepository.findByKey(SystemConfigConstant.GOODS_URL).getValue().split("-");
         String goods = values[0];
         String goodsUrl = MessageFormat.format(SystemConstant.GOODS_URL, values[1]);
@@ -54,6 +53,8 @@ public class ReptilianTask {
         log.info("===========================================================================");
         log.info("今日抢购:{}, vc:{}, url:{}", goods, vc, goodsUrl);
         log.info("===========================================================================");
+
+        Thread.sleep(10 * 1000);
 
         List<OrderAccount> accounts = orderAccountRepository.findAll();
         Collections.shuffle(accounts);
@@ -87,7 +88,7 @@ public class ReptilianTask {
                             log.info("被禁用:[{}]", account);
                         } else {
                             for (Integer updateCodeSecond : updateCodeSeconds) {
-                                taskExecutor.execute(new SpliderRunnable(account.getPhone(), account.getPassword(), proxyUtil, updateCodeSecond, goods, goodsUrl, vc));
+                                new Thread(new SpliderRunnable(account.getPhone(), account.getPassword(), proxyUtil, updateCodeSecond, goods, goodsUrl, vc)).start();
                             }
                         }
                     } catch (Exception e){

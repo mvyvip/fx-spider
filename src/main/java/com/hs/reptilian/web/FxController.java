@@ -126,11 +126,20 @@ public class FxController {
                        Connection.Response execute = Jsoup.connect("https://mall.phicomm.com/my-receiver-save.html").method(Connection.Method.POST).cookies(cookies)
                                .timeout(SystemConstant.TIME_OUT)
                                .ignoreContentType(true)
-                               .data("maddr[name]", "刘正周")
+
+                               .data("maddr[name]", "李涛")
+                               .data("maddr[mobile]", "13648045607")
+                               .data("maddr[area]", "mainland:四川省/成都市/金牛区:2533")
+                               .data("maddr[addr]", "五块石金色港湾1栋")
+                               .data("maddr[is_default]", "true")
+
+                               /*.data("maddr[name]", "刘正周")
                                .data("maddr[mobile]", "13863749494")
                                .data("maddr[area]", "mainland:山东省/济宁市/微山县:1583")
                                .data("maddr[addr]", "山东省济宁市微山县苏园一村32号楼1单元888号-诗人")
-                               .data("maddr[is_default]", "true")
+                               .data("maddr[is_default]", "true")*/
+
+
 //					.data("maddr[name]", "冷先生")
 //					.data("maddr[mobile]", "15879299250")
 //					.data("maddr[area]", "mainland:江西省/九江市/武宁县:1407")
@@ -352,6 +361,11 @@ public class FxController {
         return ViewData.builder().build();
     }
 
+    @GetMapping("/cookies")
+    public ViewData cookies(){
+        return ViewData.builder().total(CookieUtils.getCookies().size()).data(CookieUtils.getCookies()).build();
+    }
+
     private String getWuliu(Element element, Map<String, String> cookies) {
         try {
             String body = Jsoup.connect("https://mall.phicomm.com/order-logistics_tracker-" + element.attr("data-deliveryid") + ".html")
@@ -425,6 +439,37 @@ public class FxController {
             }
             log.error(username + "----" + password + "----超过最大登录次数");
             return null;
+        }
+    }
+
+    private void setAddr(Map<String, String> cookies, OrderAccount orderAccount) {
+        try {
+            Connection.Response execute = Jsoup.connect("https://mall.phicomm.com/my-receiver-save.html").method(Connection.Method.POST).cookies(cookies)
+                    .timeout(SystemConstant.TIME_OUT)
+                    .ignoreContentType(true)
+
+                    .data("maddr[name]", "李涛")
+                    .data("maddr[mobile]", "13648045607")
+                    .data("maddr[area]", "mainland:四川省/成都市/金牛区:2533")
+                    .data("maddr[addr]", "五块石金色港湾1栋")
+                    .data("maddr[is_default]", "true")
+
+                    /*.data("maddr[name]", "刘正周")
+                    .data("maddr[mobile]", "13863749494")
+                    .data("maddr[area]", "mainland:山东省/济宁市/微山县:1583")
+                    .data("maddr[addr]", "山东省济宁市微山县苏园一村32号楼1单元888号-诗人")
+                    .data("maddr[is_default]", "true")*/
+
+
+//					.data("maddr[name]", "冷先生")
+//					.data("maddr[mobile]", "15879299250")
+//					.data("maddr[area]", "mainland:江西省/九江市/武宁县:1407")
+//					.data("maddr[addr]", "江西省九江市武宁县小康路19号-诗人")
+//					.data("maddr[is_default]", "true")
+                    .execute();
+            log.info(orderAccount + "---设置默认地址成功");
+        } catch (Exception e) {
+            setAddr(cookies, orderAccount);
         }
     }
 
