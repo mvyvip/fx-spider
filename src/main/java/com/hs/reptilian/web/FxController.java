@@ -126,7 +126,7 @@ public class FxController {
                        Connection.Response execute = Jsoup.connect("https://mall.phicomm.com/my-receiver-save.html").method(Connection.Method.POST).cookies(cookies)
                                .timeout(SystemConstant.TIME_OUT)
                                .ignoreContentType(true)
-
+                                .proxy(proxyUtil.getProxy())
                                .data("maddr[name]", "李涛")
                                .data("maddr[mobile]", "13648045607")
                                .data("maddr[area]", "mainland:四川省/成都市/金牛区:2533")

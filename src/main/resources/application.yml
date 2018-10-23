@@ -22,3 +22,5 @@ logging:
 
 server:
   port: ${random.int[7000,9999]}
+
+start: 65

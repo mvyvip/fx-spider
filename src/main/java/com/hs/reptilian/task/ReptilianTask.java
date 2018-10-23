@@ -10,10 +10,12 @@ import com.hs.reptilian.repository.SystemConfigRepository;
 import com.hs.reptilian.repository.TaskListRepository;
 import com.hs.reptilian.task.runnable.SpliderRunnable;
 import com.hs.reptilian.util.ProxyUtil;
+import java.security.acl.LastOwnerException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +41,9 @@ public class ReptilianTask {
     @Autowired
     private SystemConfigRepository systemConfigRepository;
 
+    @Value("${start}")
+    private Integer start;
+
     @PostConstruct
     public void start() throws Exception {
         startTask();
@@ -54,11 +59,31 @@ public class ReptilianTask {
         log.info("今日抢购:{}, vc:{}, url:{}", goods, vc, goodsUrl);
         log.info("===========================================================================");
 
-        Thread.sleep(10 * 1000);
 
         List<OrderAccount> accounts = orderAccountRepository.findAll();
-        Collections.shuffle(accounts);
+        if((start + SystemConstant.SIZE) > accounts.size()) {
+            start = accounts.size() - SystemConstant.SIZE;
+        }
+        List<Integer> updateCodeSeconds = SystemConstant.UPDATE_CODE_SECONDS;
+        log.info("参与总数：{}, 开始下标：{}, 结束下标：{}", accounts.size(), start, start + SystemConstant.SIZE);
+        for (int i = start; i < start + SystemConstant.SIZE; i++) {
+            OrderAccount account = accounts.get(i);
+            System.out.println(account);
+            try {
+                if(StringUtils.isNotEmpty(account.getStatus()) && account.getStatus().equals("2")) {
+                    log.info("被禁用:[{}]", account);
+                } else {
+                    for (Integer updateCodeSecond : updateCodeSeconds) {
+                        new Thread(new SpliderRunnable(account.getPhone(), account.getPassword(), proxyUtil, updateCodeSecond, goods, goodsUrl, vc)).start();
+                    }
+                }
+            } catch (Exception e){
+                e.printStackTrace();
+                log.info("初始化抢购失败：" + e.fillInStackTrace());
+            }
+        }
 
+        Thread.sleep(10 * 1000);
  /*       accounts.clear();
         OrderAccount oc = new OrderAccount();
         oc.setPhone("13282083462");
@@ -77,7 +102,7 @@ public class ReptilianTask {
         oc3.setPassword("li5201314");
         accounts.add(oc3);*/
 
-        List<Integer> updateCodeSeconds = SystemConstant.UPDATE_CODE_SECONDS;
+       /* List<Integer> updateCodeSeconds = SystemConstant.UPDATE_CODE_SECONDS;
 
         new Thread(new Runnable() {
             @Override
@@ -97,7 +122,7 @@ public class ReptilianTask {
                     }
                 }
             }
-        }).start();
+        }).start();*/
     }
 
 }

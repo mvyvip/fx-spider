@@ -5,13 +5,15 @@ import java.util.List;
 
 public interface SystemConstant {
 
-    List<Integer> UPDATE_CODE_SECONDS = Arrays.asList(55);
+    List<Integer> UPDATE_CODE_SECONDS = Arrays.asList(52);
 
-    int TASK_COUNT = 3;
+    int TASK_COUNT = 1;
 
     int TIME_OUT = 30000;
 
-    int THREAD_WAIT_TIME = 200;
+    int THREAD_WAIT_TIME = 350;
+
+    int SIZE = 65;
 
     int IP_COUNT = 100;
 //    int IP_COUNT = 10;
@@ -22,7 +24,6 @@ public interface SystemConstant {
     String S7_VC = "23900";
     String W3_VC = "0";
     String W1_VC = "23900";
-
 
 
     String S7_URL = "https://mall.phicomm.com/cart-fastbuy-12-1.html";
