@@ -174,10 +174,18 @@ public class FxController {
 
     private Connection.Response getOrders(Map<String, String> cookies) {
         try {
+            String randomIp = getRandomIp();
             Connection.Response response = Jsoup.connect("https://mall.phicomm.com/index.php/my-orders.html")
                     .method(Connection.Method.POST)
                     .ignoreContentType(true)
                     .timeout(10000)
+
+                    .header("x-forward-for", randomIp)
+                    .header("X-Forwarded-For", randomIp)
+                    .header("client_ip", randomIp)
+                    .header("CLIENT_IP", randomIp)
+                    .header("REMOTE_ADDR", randomIp)
+                    .header("VIA", randomIp)
                     .proxy(proxyUtil.getProxy())
                     .cookies(cookies)
                     .execute();
@@ -405,11 +413,18 @@ public class FxController {
         }
     }
 
-    private Map<String, String> getCookies(String username, String password, int tryCount) {
+    private Map<String, String> getCookies(String username, String password, int tryCount) throws InterruptedException {
         try {
+            String randomIp = getRandomIp();
             Map<String, String> pageCookies = Jsoup.connect("https://mall.phicomm.com/passport-login.html")
                     .method(Connection.Method.GET).timeout(SystemConstant.TIME_OUT)
                     .proxy(proxyUtil.getProxy())
+                    .header("x-forward-for", randomIp)
+                    .header("X-Forwarded-For", randomIp)
+                    .header("client_ip", randomIp)
+                    .header("CLIENT_IP", randomIp)
+                    .header("REMOTE_ADDR", randomIp)
+                    .header("VIA", randomIp)
                     .execute().cookies();
             Connection.Response loginResponse = Jsoup.connect("https://mall.phicomm.com/passport-post_login.html")
                     .proxy(proxyUtil.getProxy())
@@ -421,6 +436,12 @@ public class FxController {
                     .data("forward", "")
                     .data("uname", username)
                     .data("password", password)
+                    .header("x-forward-for", randomIp)
+                    .header("X-Forwarded-For", randomIp)
+                    .header("client_ip", randomIp)
+                    .header("CLIENT_IP", randomIp)
+                    .header("REMOTE_ADDR", randomIp)
+                    .header("VIA", randomIp)
                     .execute();
             if (loginResponse.body().contains("error")) {
                 throw new RuntimeException("账号或密码错误");
@@ -432,8 +453,8 @@ public class FxController {
             cks.putAll(loginResponse.cookies());
             return cks;
         } catch (Exception e) {
-            log.error(e.getMessage());
-            if (tryCount < 40) {
+            log.error("登录失败: " + e.getMessage());
+            if (tryCount < 25) {
                 log.info(username + "第" + (++tryCount) + "次登录重试");
                 return getCookies(username, password, tryCount);
             }
@@ -460,17 +481,164 @@ public class FxController {
                     .data("maddr[addr]", "山东省济宁市微山县苏园一村32号楼1单元888号-诗人")
                     .data("maddr[is_default]", "true")*/
 
-
-//					.data("maddr[name]", "冷先生")
-//					.data("maddr[mobile]", "15879299250")
-//					.data("maddr[area]", "mainland:江西省/九江市/武宁县:1407")
-//					.data("maddr[addr]", "江西省九江市武宁县小康路19号-诗人")
-//					.data("maddr[is_default]", "true")
                     .execute();
             log.info(orderAccount + "---设置默认地址成功");
         } catch (Exception e) {
             setAddr(cookies, orderAccount);
         }
+    }
+
+    @GetMapping("/accounts")
+    public Object accounts(String name, String type) throws Exception {
+        Map<String, Object> result = new HashMap<>();
+        List<OrderAccount> orders = new ArrayList<>();
+        List<OrderAccount> orderAccountList = orderRepository.findAll();
+        CountDownLatch countDownLatch = new CountDownLatch(orderAccountList.size());
+
+        int i = 0;
+        for (OrderAccount orderAccount : orderAccountList) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Map<String, String> cookies = getCookies(orderAccount.getPhone(), orderAccount.getPassword(), 0);
+                        orders.add(orderAccount);
+
+                        if(cookies != null) {
+                            setDefaultAddress(orderAccount, cookies);
+
+                            orderAccount.setStatus2(orderAccount.getStatus());
+                            if(MapUtils.isNotEmpty(cookies)) {
+                                String vc = getVc(cookies, orderAccount);
+                                Connection.Response response = getOrders(cookies);
+                                orderAccount.setVc(vc);
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.error("登录失败： " + e.getMessage());
+                    } finally {
+                        countDownLatch.countDown();
+                    }
+                }
+            }).start();
+            System.err.println(++i);
+            Thread.sleep(300);
+        }
+
+
+        countDownLatch.await();
+        System.out.println("开始");
+
+        result.put("code", 0);
+        result.put("count", orders.size());
+        result.put("data", orders);
+
+        return result;
+    }
+
+    private String getVc(Map<String, String> cookies, OrderAccount oc) {
+        try {
+            String randomIp = getRandomIp();
+            Document parse = Jsoup.connect("https://mall.phicomm.com/my-vclist.html")
+                    .cookies(cookies)
+                    .timeout(SystemConstant.TIME_OUT)
+                    .proxy(proxyUtil.getProxy())
+
+                    .header("x-forward-for", randomIp)
+                    .header("X-Forwarded-For", randomIp)
+                    .header("client_ip", randomIp)
+                    .header("CLIENT_IP", randomIp)
+                    .header("REMOTE_ADDR", randomIp)
+                    .header("VIA", randomIp)
+                    .execute().parse();
+            oc.setVc2(parse.body().text().split("冻结维C ")[1].split(" 维C明细")[0]);
+            String vc = parse.body().text().split("可用维C ")[1].split(" 冻结维C")[0];
+
+            Document info = Jsoup.connect("https://mall.phicomm.com/my-setting.html")
+                    .cookies(cookies)
+                    .timeout(SystemConstant.TIME_OUT)
+
+                    .header("x-forward-for", randomIp)
+                    .header("X-Forwarded-For", randomIp)
+                    .header("client_ip", randomIp)
+                    .header("CLIENT_IP", randomIp)
+                    .header("REMOTE_ADDR", randomIp)
+                    .header("VIA", randomIp)
+                    .proxy(proxyUtil.getProxy())
+                    .execute().parse();
+
+            if(info.body().text().contains("已认证")) {
+                oc.setRenzheng("已认证");
+            } else {
+                oc.setRenzheng("未认证");
+            }
+
+            return vc;
+        } catch (Exception e) {
+            return getVc(cookies, oc);
+        }
+    }
+
+
+    private void setDefaultAddress(OrderAccount orderAccount, Map<String, String> cookie) {
+        try {
+            String randomIp = getRandomIp();
+            Document document = Jsoup.connect("https://mall.phicomm.com/my-receiver.html").method(Connection.Method.GET).cookies(cookie).timeout(SystemConstant.TIME_OUT)
+                    .proxy(proxyUtil.getProxy())
+                    .header("x-forward-for", randomIp)
+                    .header("X-Forwarded-For", randomIp)
+                    .header("client_ip", randomIp)
+                    .header("CLIENT_IP", randomIp)
+                    .header("REMOTE_ADDR", randomIp)
+                    .header("VIA", randomIp)
+                    .execute().parse();
+            Elements dts = document.getElementsByTag("dt");
+            for (Element dt : dts) {
+                if(dt.text().contains("默认")) {
+                    String defaultAddress = dt.getElementsByTag("span").get(0).text() + document.getElementsByTag("dd").get(0).text();
+                    orderAccount.setDefaultAddress(defaultAddress);
+                }
+            }
+        } catch (Exception e) {
+            log.error("获取默认地址失败：" + e.getMessage());
+            setDefaultAddress(orderAccount, cookie);
+        }
+    }
+
+
+    public static String getRandomIp() {
+        // ip范围
+        int[][] range = {{607649792, 608174079}, // 36.56.0.0-36.63.255.255
+                {1038614528, 1039007743}, // 61.232.0.0-61.237.255.255
+                {1783627776, 1784676351}, // 106.80.0.0-106.95.255.255
+                {2035023872, 2035154943}, // 121.76.0.0-121.77.255.255
+                {2078801920, 2079064063}, // 123.232.0.0-123.235.255.255
+                {-1950089216, -1948778497}, // 139.196.0.0-139.215.255.255
+                {-1425539072, -1425014785}, // 171.8.0.0-171.15.255.255
+                {-1236271104, -1235419137}, // 182.80.0.0-182.92.255.255
+                {-770113536, -768606209}, // 210.25.0.0-210.47.255.255
+                {-569376768, -564133889}, // 222.16.0.0-222.95.255.255
+        };
+
+        Random rdint = new Random();
+        int index = rdint.nextInt(10);
+        String ip = num2ip(range[index][0] + new Random().nextInt(range[index][1] - range[index][0]));
+        return ip;
+    }
+
+    /*
+     * 将十进制转换成IP地址
+     */
+    public static String num2ip(int ip) {
+        int[] b = new int[4];
+        String x = "";
+        b[0] = (int) ((ip >> 24) & 0xff);
+        b[1] = (int) ((ip >> 16) & 0xff);
+        b[2] = (int) ((ip >> 8) & 0xff);
+        b[3] = (int) (ip & 0xff);
+        x = Integer.toString(b[0]) + "." + Integer.toString(b[1]) + "." + Integer.toString(b[2]) + "." + Integer.toString(b[3]);
+
+        return x;
     }
 
 }

@@ -171,10 +171,12 @@ public class SpliderRunnable implements Runnable {
                                 updateRsBody(body);
                             }
                         } catch (Exception e) {
+                            log.error("初始化>>>body失败--" + e.getMessage());
                         }
                     }
                 }).start();
             } catch (Exception e) {
+                log.error("初始化body失败--" + e.getMessage());
             }
         }
         return rsbody;

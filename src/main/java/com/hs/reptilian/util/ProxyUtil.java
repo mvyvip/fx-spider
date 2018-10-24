@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -17,6 +18,9 @@ import java.util.*;
 @Slf4j
 @Component
 public class ProxyUtil {
+
+    @Value("${key}")
+    private String key;
 
     private List<ProxyEntity> proxyEntities = new ArrayList<>();
 
@@ -53,7 +57,7 @@ public class ProxyUtil {
 
     public synchronized List<ProxyEntity> initIps() {
       try {
-          Connection.Response response = Jsoup.connect(SystemConstant.IP_URL)
+          Connection.Response response = Jsoup.connect(SystemConstant.IP_URL + key)
                   .timeout(SystemConstant.TIME_OUT)
                   .ignoreContentType(true)
                   .header("Content-Type", "application/json; charset=UTF-8")

@@ -8,39 +8,43 @@ import org.jsoup.Jsoup;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Random;
 
+@SuppressWarnings("all")
 public class OtherTest {
-    public static volatile int i = 0;
+    public static String getRandomIp() {
+        // ip范围
+        int[][] range = {{607649792, 608174079}, // 36.56.0.0-36.63.255.255
+                {1038614528, 1039007743}, // 61.232.0.0-61.237.255.255
+                {1783627776, 1784676351}, // 106.80.0.0-106.95.255.255
+                {2035023872, 2035154943}, // 121.76.0.0-121.77.255.255
+                {2078801920, 2079064063}, // 123.232.0.0-123.235.255.255
+                {-1950089216, -1948778497}, // 139.196.0.0-139.215.255.255
+                {-1425539072, -1425014785}, // 171.8.0.0-171.15.255.255
+                {-1236271104, -1235419137}, // 182.80.0.0-182.92.255.255
+                {-770113536, -768606209}, // 210.25.0.0-210.47.255.255
+                {-569376768, -564133889}, // 222.16.0.0-222.95.255.255
+        };
 
+        Random rdint = new Random();
+        int index = rdint.nextInt(10);
+        String ip = num2ip(range[index][0] + new Random().nextInt(range[index][1] - range[index][0]));
+        return ip;
+    }
 
-    public static void main(String[] args) throws Exception {
-//         int i = 0;
-        for (int j = 0; j < 10; j++) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        byte[] bytes = Jsoup.connect("https://mall.phicomm.com/vcode-index-passport6340322.html")
-                                .ignoreContentType(true)
-                                .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes();
+    /*
+     * 将十进制转换成IP地址
+     */
+    public static String num2ip(int ip) {
+        int[] b = new int[4];
+        String x = "";
+        b[0] = (int) ((ip >> 24) & 0xff);
+        b[1] = (int) ((ip >> 16) & 0xff);
+        b[2] = (int) ((ip >> 8) & 0xff);
+        b[3] = (int) (ip & 0xff);
+        x = Integer.toString(b[0]) + "." + Integer.toString(b[1]) + "." + Integer.toString(b[2]) + "." + Integer.toString(b[3]);
 
-                        long start = System.currentTimeMillis();
-                        System.out.println("startL " + start);
-                        String validate = FeiFeiUtil.validate(bytes);
-//                        String validate = RuoKuaiUtils.createByPost("2980364030", "li5201314", "4030", "9500", "112405", "e68297ecf19c4f418184df5b8ce1c31e", bytes);
-                        System.out.println((System.currentTimeMillis() - start) + "---> " + validate);
-
-//                        String code = RuoKuaiUtils.createByPost("2980364030", "li5201314", "4030", "9500", "112405", "e68297ecf19c4f418184df5b8ce1c31e", bytes);
-
-
-                        FileOutputStream fileOutputStream = new FileOutputStream(new File("d:/img/" + ++i + ".png" ));
-                        IOUtils.write(bytes, fileOutputStream);
-                    }catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-        }
+        return x;
     }
 
 

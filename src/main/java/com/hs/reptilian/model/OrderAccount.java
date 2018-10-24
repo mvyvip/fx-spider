@@ -40,7 +40,16 @@ public class OrderAccount {
     private String address;
 
     @Transient
+    private String defaultAddress;
+
+    @Transient
     private String vc;
+
+    @Transient
+    private String vc2;
+
+    @Transient
+    private String renzheng;
 
     /** 物流号 */
     @Transient
@@ -52,6 +61,9 @@ public class OrderAccount {
     private String orderNo;
 
     private String status;
+
+    @Transient
+    private String status2;
 
     @Column(name = "create_date")
     private Date createDate;

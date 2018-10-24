@@ -8,6 +8,9 @@ import java.util.Map;
 import org.jsoup.Connection;
 import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  * Created by lt on 2018/10/19 0019.
@@ -20,23 +23,41 @@ public class InitAddress {
     private static List<Account> accounts = new ArrayList<>();
 
     static {
-        accounts.add(new Account("15519049461", "xy666888"));
-        accounts.add(new Account("13017458404", "xy666888"));
-        accounts.add(new Account("13195209974", "xy666888"));
-        accounts.add(new Account("15599139010", "xy666888"));
-        accounts.add(new Account("15585240389", "xy666888"));
-        accounts.add(new Account("15585241072", "xy666888"));
-        accounts.add(new Account("13078556681", "xy666888"));
-        accounts.add(new Account("13195104691", "xy666888"));
-        accounts.add(new Account("13158050482", "xy666888"));
-        accounts.add(new Account("15585161713", "xy666888"));
-        accounts.add(new Account("15519136140", "xy666888"));
 //        accounts.add(new Account("", "xy666888"));
 //        accounts.add(new Account("", "xy666888"));
 //        accounts.add(new Account("", "xy666888"));
     }
 
     public static void main(String[] args) throws Exception {
+
+        String s = "" +
+
+//                "13649841022----lhy19761120----刘晶----330521197810260021\n" +
+
+                "13343957419----ABC225566XYZ----刘晶----330521197810260021\n" +
+                "13124671643----xy666888----刘晶----330521197810260021\n" +
+                "13195104346----xy666888----刘晶----330521197810260021\n" +
+
+
+                "17329517713----hao112233----陆正琴----53230120011130212X";
+
+        for (String s1 : s.split("\n")) {
+            accounts.add(new Account(s1.split("----")[0], s1.split("----")[1]));
+
+         /*   Map<String, String> cookies = getCookies(s1.split("----")[0], s1.split("----")[1]);
+
+            Document document = Jsoup.connect("https://mall.phicomm.com/my-receiver.html").method(Connection.Method.GET).cookies(cookies).timeout(SystemConstant.TIME_OUT)
+                    .execute().parse();
+            Elements dts = document.getElementsByTag("dt");
+            for (Element dt : dts) {
+                if(dt.text().contains("默认")) {
+                    String defaultAddress = s1.split("----")[0] + "---" + dt.getElementsByTag("span").get(0).text() + document.getElementsByTag("dd").get(0).text();
+                    System.out.println();
+                    continue;
+                }
+            }*/
+        }
+
 
         for (Account account : accounts) {
             Map<String, String> cookies = getCookies(account.getPhone(), account.getPassword());
@@ -47,12 +68,21 @@ public class InitAddress {
                 //.header("X-Requested-With", "XMLHttpRequest")
                 //.header("Content-Type", "application/x-www-form-urlencoded")
                 //.header("Upgrade-Insecure-Requests", "1")
-                .data("maddr[name]", "刘正周")
-                .data("maddr[mobile]", "13863749494")
-                .data("maddr[area]", "mainland:山东省/济宁市/微山县:1583")
-                .data("maddr[addr]", "山东省济宁市微山县苏园一村32号楼1单元888号-诗人")
-                .data("maddr[is_default]", "true")
+                    .data("maddr[name]", "钟尚华")
+                    .data("maddr[mobile]", "13540112643")
+                    .data("maddr[area]", "mainland:四川省/成都市/成华区:2535")
+                    .data("maddr[addr]", "东林小区--老板数签签（串串店）")
+                    .data("maddr[is_default]", "true")
                 .execute();
+
+        /*    [addr_id]: 751474
+            maddr[name]: 钟尚华
+            maddr[mobile]: 13540112643
+            maddr[area]: mainland:四川省/成都市/成华区:2535
+            maddr[addr]: 东林小区--老板数签签（串串店）
+            maddr[is_default]: true*/
+
+            Thread.sleep(2000);
             System.out.println(account.getPhone() + "---ok");
         }}
 
@@ -150,6 +180,7 @@ public class InitAddress {
                cks.putAll(loginResponse.cookies());
                return cks;
            }catch (Exception e){
+               System.out.println(e.getMessage());
                return getCookies(username, password);
            }
         }

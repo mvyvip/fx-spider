@@ -59,8 +59,9 @@ public class ReptilianTask {
         log.info("今日抢购:{}, vc:{}, url:{}", goods, vc, goodsUrl);
         log.info("===========================================================================");
 
+        Thread.sleep(5 * 1000);
 
-        List<OrderAccount> accounts = orderAccountRepository.findAll();
+        List<OrderAccount> accounts = orderAccountRepository.findByStatus("1");
         if((start + SystemConstant.SIZE) > accounts.size()) {
             start = accounts.size() - SystemConstant.SIZE;
         }
@@ -68,14 +69,9 @@ public class ReptilianTask {
         log.info("参与总数：{}, 开始下标：{}, 结束下标：{}", accounts.size(), start, start + SystemConstant.SIZE);
         for (int i = start; i < start + SystemConstant.SIZE; i++) {
             OrderAccount account = accounts.get(i);
-            System.out.println(account);
             try {
-                if(StringUtils.isNotEmpty(account.getStatus()) && account.getStatus().equals("2")) {
-                    log.info("被禁用:[{}]", account);
-                } else {
-                    for (Integer updateCodeSecond : updateCodeSeconds) {
+                for (Integer updateCodeSecond : updateCodeSeconds) {
                         new Thread(new SpliderRunnable(account.getPhone(), account.getPassword(), proxyUtil, updateCodeSecond, goods, goodsUrl, vc)).start();
-                    }
                 }
             } catch (Exception e){
                 e.printStackTrace();
@@ -83,7 +79,6 @@ public class ReptilianTask {
             }
         }
 
-        Thread.sleep(10 * 1000);
  /*       accounts.clear();
         OrderAccount oc = new OrderAccount();
         oc.setPhone("13282083462");

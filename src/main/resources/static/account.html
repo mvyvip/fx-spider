@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>帐号记录</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="layui/css/layui.css">
+</head>
+<script>
+
+</script>
+<body>
+<table id="his"></table>
+
+<script src="layui/layui.all.js"></script>
+<script>
+    var index = layer.load(2);
+    layui.table.render({
+        id: 'his',
+        page: true,
+        limits: [20, 50, 100],
+        limit: 100,
+        elem: '#his',
+        cols: [[
+            {type: 'numbers'},
+            {field: 'phone', title: '电话', width: 150, sort: true},
+            {field: 'password', title: '密码', width: 138, sort: true},
+            {field: 'remark', title: '备注', width: 138, sort: true},
+            {field: 'vc', title: '可用vc', width: 138, sort: true},
+            {field: 'vc2', title: '冻结vc', width: 138, sort: true},
+            {field: 'renzheng', title: '认证信息', width: 150, sort: true},
+            {field: 'status2', title: '帐号状态', width: 150, sort: true},
+            {field: 'defaultAddress', title: '默认地址', width: 150, sort: true}
+        ]],
+        url: "/accounts",
+        done: function(){
+            layer.close(index);
+        }
+    });
+
+</script>
+</body>
+</html>
