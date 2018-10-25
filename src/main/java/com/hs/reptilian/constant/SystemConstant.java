@@ -15,8 +15,9 @@ public interface SystemConstant {
 
     int SIZE = 70;
 
-    int IP_COUNT = 100;
-//    int IP_COUNT = 10;
+    int ONE_IP_COUNT = 100;
+
+    int ALL_IP_COUNT = 500;
 
 
     String K2_VC = "16000";
@@ -32,7 +33,7 @@ public interface SystemConstant {
     String W3_URL = "https://mall.phicomm.com/cart-fastbuy-197-1.html";
     String W1_URL = "https://mall.phicomm.com/cart-fastbuy-14-1.html";
 
-    String IP_URL = "http://h.wandouip.com/get/ip-list?pack=0&num=" + IP_COUNT + "&xy=2&type=2&lb=\\r\\n&mr=2&app_key=";
+    String IP_URL = "http://h.wandouip.com/get/ip-list?pack=0&num=" + ONE_IP_COUNT + "&xy=2&type=2&lb=\\r\\n&mr=2&app_key=";
 
     String GOODS_URL = "https://mall.phicomm.com/cart-fastbuy-{0}-1.html";
 

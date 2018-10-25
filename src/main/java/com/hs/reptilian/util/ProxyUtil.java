@@ -3,6 +3,7 @@ package com.hs.reptilian.util;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.hs.reptilian.constant.SystemConstant;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jsoup.Connection;
@@ -24,6 +25,8 @@ public class ProxyUtil {
 
     private List<ProxyEntity> proxyEntities = new ArrayList<>();
 
+    private volatile AtomicInteger index = new AtomicInteger(0);
+
     @PostConstruct
     public void init() {
         task();
@@ -43,7 +46,7 @@ public class ProxyUtil {
                                 iterator.remove();
                             }
                         }
-                        if(getCanUsed() < SystemConstant.IP_COUNT) {
+                        if(getCanUsed() < SystemConstant.ALL_IP_COUNT) {
                             initIps();
                         }
                         Thread.sleep(30 * 1000);
@@ -87,8 +90,15 @@ public class ProxyUtil {
 //            }
 //        }
 
-        Collections.shuffle(proxyEntities);
-        ProxyEntity proxyEntity = proxyEntities.get(0);
+   /*     Collections.shuffle(proxyEntities);
+        ProxyEntity proxyEntity = proxyEntities.get(0);*/
+
+        if(index.get() >= proxyEntities.size()) {
+            index.set(0);
+        }
+        ProxyEntity proxyEntity = proxyEntities.get(index.get());
+        index.incrementAndGet();
+
 //        log.info("proxy > " + proxyEntity.getIp() + ":"+ proxyEntity.getPort());
         return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyEntity.getIp(), proxyEntity.getPort()));
     }

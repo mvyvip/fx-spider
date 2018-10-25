@@ -59,6 +59,12 @@ public class ReptilianTask {
         log.info("今日抢购:{}, vc:{}, url:{}", goods, vc, goodsUrl);
         log.info("===========================================================================");
 
+        Thread.sleep(1000 * 12);
+        for (int i = 0; i < 3; i++) {
+            proxyUtil.initIps();
+            Thread.sleep(10 * 1000);
+        }
+        
         Thread.sleep(5 * 1000);
 
         List<OrderAccount> accounts = orderAccountRepository.findByStatus("1");
