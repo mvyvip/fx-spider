@@ -13,8 +13,18 @@
 <table id="his"></table>
 
 <script src="layui/layui.all.js"></script>
+<script type="text/html" id="urlTemp">
+    <image src="{{d.payBase64}}" />
+    <a href="/detail/{{d.id}}" class="layui-table-link">{{d.title}}</a>
+</script>
+
+<script type="text/html" id="showimg">
+    <img src="{{ d.payBase64}}"/>
+</script>
+
 <script>
     var index = layer.load(2);
+    var $ = layui.jquery
     layui.table.render({
         id: 'his',
         page: true,
@@ -28,13 +38,36 @@
             {field: 'cookie', title: 'cookie', width: 138},
             {field: 'status', title: '订单状态', width: 150, sort: true},
             {field: 'orderCreateDate', title: '下单时间', width: 150, sort: true},
+            {field: 'payBase64', title: '付款码', width: 150, templet: '#urlTemp'},
             {field: 'goodsName', title: '商品', width: 150, sort: true}
         ]],
         url: "/fast/orders",
-        done: function(){
+        done: function(res, curr, count){
+            hoverOpenImg();//显示大图
+            $('table tr').on('click',function(){
+                $('table tr').css('background','');
+                $(this).css('background','<%=PropKit.use("config.properties").get("table_color")%>');
+            });
             layer.close(index);
         }
     });
+
+    function hoverOpenImg(){
+        var img_show = null; // tips提示
+        $('td img').hover(function(){
+            var kd=$(this).width();
+            kd1=kd*3;          //图片放大倍数
+            kd2=kd*3+30;       //图片放大倍数
+            var img = "<img class='img_msg' src='"+$(this).attr('src')+"' style='width:"+kd1+"px;' />";
+            img_show = layer.tips(img, this,{
+                tips:[2, 'rgba(41,41,41,.5)']
+                ,area: [kd2+'px']
+            });
+        },function(){
+            layer.close(img_show);
+        });
+        $('td img').attr('style','max-width:70px;display:block!important');
+    }
 
 </script>
 </body>

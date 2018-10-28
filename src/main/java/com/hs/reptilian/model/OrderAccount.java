@@ -75,4 +75,9 @@ public class OrderAccount {
 
     @Transient
     private String cookie;
+
+    @Transient
+    private String payBase64;
+
+
 }
