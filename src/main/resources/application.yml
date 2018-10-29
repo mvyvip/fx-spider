@@ -23,5 +23,6 @@ logging:
 server:
   port: ${random.int[7000,9999]}
 
-start: 70
-key: f0c35c13b2fffac65e411939bc2de921
+#start: 70
+#key: f0c35c13b2fffac65e411939bc2de921
+#count: 500

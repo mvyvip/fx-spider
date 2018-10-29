@@ -17,7 +17,7 @@ public interface SystemConstant {
 
     int ONE_IP_COUNT = 100;
 
-    int ALL_IP_COUNT = 500;
+//    int ALL_IP_COUNT = 500;
 
 
     String K2_VC = "16000";

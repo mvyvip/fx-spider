@@ -44,6 +44,9 @@ public class ReptilianTask {
     @Value("${start}")
     private Integer start;
 
+    @Value("${count}")
+    private Integer count;
+
     @PostConstruct
     public void start() throws Exception {
         startTask();
@@ -57,10 +60,11 @@ public class ReptilianTask {
 
         log.info("===========================================================================");
         log.info("今日抢购:{}, vc:{}, url:{}", goods, vc, goodsUrl);
+        log.info("抢购总IP:{}, 需要循环的次数: {}", count, count / 100);
         log.info("===========================================================================");
 
         Thread.sleep(1000 * 12);
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < count / 100; i++) {
             proxyUtil.initIps();
             Thread.sleep(10 * 1000);
         }

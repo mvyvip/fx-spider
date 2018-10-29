@@ -23,6 +23,9 @@ public class ProxyUtil {
     @Value("${key}")
     private String key;
 
+    @Value("${count}")
+    private Integer count;
+
     private List<ProxyEntity> proxyEntities = new ArrayList<>();
 
     private volatile AtomicInteger index = new AtomicInteger(0);
@@ -46,7 +49,7 @@ public class ProxyUtil {
                                 iterator.remove();
                             }
                         }
-                        if(getCanUsed() < SystemConstant.ALL_IP_COUNT) {
+                        if(getCanUsed() < count) {
                             initIps();
                         }
                         Thread.sleep(30 * 1000);
@@ -65,7 +68,6 @@ public class ProxyUtil {
                   .ignoreContentType(true)
                   .header("Content-Type", "application/json; charset=UTF-8")
                   .execute();
-         log.info(response.body() + "----" + new Date().toLocaleString());
           JSONArray datas = JSONObject.parseObject(response.body()).getJSONArray("data");
           for (Object data : datas) {
               JSONObject jsonObject = JSONObject.parseObject(data.toString());
