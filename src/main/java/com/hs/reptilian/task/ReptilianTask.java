@@ -33,9 +33,6 @@ public class ReptilianTask {
     private OrderAccountRepository orderAccountRepository;
 
     @Autowired
-    private ThreadPoolTaskExecutor taskExecutor;
-
-    @Autowired
     private ProxyUtil proxyUtil;
 
     @Autowired
@@ -63,10 +60,10 @@ public class ReptilianTask {
         log.info("抢购总IP:{}, 需要循环的次数: {}", count, count / 100);
         log.info("===========================================================================");
 
-        Thread.sleep(1000 * 12);
+        Thread.sleep(5 * 12);
         for (int i = 0; i < count / 100; i++) {
             proxyUtil.initIps();
-            Thread.sleep(10 * 1000);
+            Thread.sleep(6 * 1000);
         }
         
         Thread.sleep(5 * 1000);
@@ -77,6 +74,25 @@ public class ReptilianTask {
         }
         List<Integer> updateCodeSeconds = SystemConstant.UPDATE_CODE_SECONDS;
         log.info("参与总数：{}, 开始下标：{}, 结束下标：{}", accounts.size(), start, start + SystemConstant.SIZE);
+
+      /*  accounts.clear();
+        OrderAccount oc = new OrderAccount();
+        oc.setPhone("13282083462");
+        oc.setPassword("li5201314");
+        accounts.add(oc);
+
+
+        OrderAccount oc2 = new OrderAccount();
+        oc2.setPhone("13843273254");
+        oc2.setPassword("li5201314");
+        accounts.add(oc2);
+
+
+        OrderAccount oc3 = new OrderAccount();
+        oc3.setPhone("13944599642");
+        oc3.setPassword("li5201314");
+        accounts.add(oc3);*/
+
         for (int i = start; i < start + SystemConstant.SIZE; i++) {
             OrderAccount account = accounts.get(i);
             try {

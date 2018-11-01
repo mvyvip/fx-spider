@@ -6,6 +6,7 @@ import com.hs.reptilian.model.OrderAccount;
 import com.hs.reptilian.repository.TaskListRepository;
 import com.hs.reptilian.util.CookieUtils;
 import com.hs.reptilian.util.ProxyUtil;
+import com.hs.reptilian.util.UserAgentUtil;
 import com.hs.reptilian.util.feifei.FeiFeiUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
@@ -87,6 +88,7 @@ public class SpliderRunnable implements Runnable {
                             vcCodeJson = FeiFeiUtil.validate(Jsoup.connect(vcCodeUrl)
                                     .ignoreContentType(true)
                                     .cookies(cookies)
+                                    .userAgent(UserAgentUtil.get())
                                     .proxy(proxyUtil.getProxy())
                                     .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());
 
@@ -104,6 +106,7 @@ public class SpliderRunnable implements Runnable {
                                                 .proxy(proxyUtil.getProxy())
                                                 .timeout(SystemConstant.TIME_OUT).ignoreContentType(true)
                                                 .cookies(cookies)
+                                                .userAgent(UserAgentUtil.get())
                                                 .header("X-Requested-With", "XMLHttpRequest")
                                                 .data("cart_md5", cart_md5)
                                                 .data("addr_id", addrId)
@@ -125,6 +128,7 @@ public class SpliderRunnable implements Runnable {
                                             atomicBoolean.set(false);
                                         }
                                     } catch (Exception e) {
+                                        info("抢购失败--" + e.getMessage());
                                     } finally {
                                         info("-addrId: " + addrId + ", vcCodeUrl: " + vcCodeUrl + ", cookies: " + cookies + ", cart_md5:" +  cart_md5);
                                         cd.countDown();
@@ -163,7 +167,7 @@ public class SpliderRunnable implements Runnable {
                     public void run() {
                         try {
                             String body = Jsoup.connect(goodsUrl).method(Connection.Method.GET)
-                                    .proxy(proxyUtil.getProxy())
+                                    .proxy(proxyUtil.getProxy()).userAgent(UserAgentUtil.get())
                                     .timeout(SystemConstant.TIME_OUT).cookies(cookies).followRedirects(true).execute().body();
                             if (body.contains("库存不足,当前最多可售数量")) {
                                 info("库存不足 - " + new Date().toLocaleString());
@@ -190,11 +194,37 @@ public class SpliderRunnable implements Runnable {
         }
     }
 
+    public static void main(String[] args) throws Exception {
+        Document document = Jsoup.connect("https://mall.phicomm.com/my-receiver.html").method(Connection.Method.GET)
+                .cookie("_SID", "066165f5377843a6b19d9fcf9ba1907c")
+                .timeout(SystemConstant.TIME_OUT).userAgent(UserAgentUtil.get())
+                .execute().parse();
+        System.out.println(document);
+        Elements dds = document.select("dd.clearfix.editing");
+
+        if (dds == null || dds.size() == 0) {
+            log.info("----无收货地址，请设置！！");
+        }
+        String[] split = dds.get(0).getElementsByTag("a").get(0).attr("href").split("-");
+        String addrId = split[split.length - 1].split("\\.")[0];
+
+        Elements dts = document.getElementsByTag("dt");
+        String address = "";
+        for (Element dt : dts) {
+            if (dt.text().contains("默认")) {
+                address = dt.getElementsByTag("span").get(0).text() + document.getElementsByTag("dd").get(0).text();
+                continue;
+            }
+        }
+
+    }
 
     private boolean initData(Map<String, String> cookies) {
         try {
             vcCodeUrl = "https://mall.phicomm.com/vcode-index-passport" + cookies.get("MEMBER_IDENT") + ".html";
-            Document document = Jsoup.connect("https://mall.phicomm.com/my-receiver.html").method(Connection.Method.GET).cookies(cookies).timeout(SystemConstant.TIME_OUT)
+            Document document = Jsoup.connect("https://mall.phicomm.com/my-receiver.html").method(Connection.Method.GET).cookies(cookies)
+                    .timeout(SystemConstant.TIME_OUT).userAgent(UserAgentUtil.get())
+                    .proxy(proxyUtil.getProxy())
                     .execute().parse();
             Elements dds = document.select("dd.clearfix.editing");
 
@@ -218,6 +248,7 @@ public class SpliderRunnable implements Runnable {
             syncCode();
             return true;
         } catch (Exception e) {
+            info("--初始化地址失败" + e.getMessage());
             return initData(cookies);
         }
     }
@@ -241,6 +272,7 @@ public class SpliderRunnable implements Runnable {
                             vcCodeJson = FeiFeiUtil.validate(Jsoup.connect(vcCodeUrl)
                                     .ignoreContentType(true)
                                     .cookies(cookies)
+                                    .userAgent(UserAgentUtil.get())
                                     .proxy(proxyUtil.getProxy())
                                     .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());
 
@@ -282,6 +314,7 @@ public class SpliderRunnable implements Runnable {
                     .method(Connection.Method.POST)
                     .ignoreContentType(true)
                     .timeout(10000)
+                    .userAgent(UserAgentUtil.get())
                     .proxy(proxyUtil.getProxy())
                     .cookies(cookies)
                     .execute();
@@ -309,6 +342,7 @@ public class SpliderRunnable implements Runnable {
         try {
             Map<String, String> pageCookies = Jsoup.connect("https://mall.phicomm.com/passport-login.html")
                     .method(Connection.Method.GET).timeout(SystemConstant.TIME_OUT)
+                    .userAgent(UserAgentUtil.get())
                     .proxy(proxyUtil.getProxy())
                     .execute().cookies();
             Connection.Response loginResponse = Jsoup.connect("https://mall.phicomm.com/passport-post_login.html")
@@ -319,6 +353,7 @@ public class SpliderRunnable implements Runnable {
                     .ignoreContentType(true)
                     .header("X-Requested-With", "XMLHttpRequest")
                     .data("forward", "")
+                    .userAgent(UserAgentUtil.get())
                     .data("uname", username)
                     .data("password", password)
                     .execute();
@@ -346,6 +381,7 @@ public class SpliderRunnable implements Runnable {
         try {
             Document parse = Jsoup.connect("https://mall.phicomm.com/my-vclist.html")
                     .cookies(cookies)
+                    .userAgent(UserAgentUtil.get())
                     .timeout(SystemConstant.TIME_OUT)
                     .proxy(proxyUtil.getProxy())
                     .execute().parse();

@@ -4,6 +4,7 @@ package com.hs.reptilian;
 import com.alibaba.fastjson.JSONObject;
 import com.hs.reptilian.constant.SystemConstant;
 import com.hs.reptilian.util.RuoKuaiUtils;
+import com.hs.reptilian.util.UserAgentUtil;
 import org.jsoup.Connection;
 import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
@@ -40,6 +41,7 @@ public class TestW1 {
 	    	            Jsoup.connect(vcCodeUrl)
 	    	            .ignoreContentType(true)
 	    	            .cookies(cookies)
+								.userAgent(UserAgentUtil.get())
 	    	            .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());
 
 				System.out.println(vcCodeJson);
@@ -58,6 +60,7 @@ public class TestW1 {
 									.data("dlytype_id", "1")
 									.data("payapp_id", "alipay")
 									.data("yougouma", "")
+										.userAgent(UserAgentUtil.get())
 									.data("invoice_type", "")
 									.data("invoice_title", "")
 									.data("useVcNum", SystemConstant.W3_VC)
@@ -73,7 +76,9 @@ public class TestW1 {
 									System.err.println("success!!!!");
 									System.exit(-1);
 								}
-							} catch (Exception e) {}
+							} catch (Exception e) {
+								System.out.println(e.getMessage());
+							}
 						}
 					});
 					threads[i].start();
@@ -102,14 +107,16 @@ public class TestW1 {
 				@Override
 				public void run() {
 					try {
-						String body = Jsoup.connect(SystemConstant.W3_URL).method(Connection.Method.GET).timeout(SystemConstant.TIME_OUT).cookies(cookies).followRedirects(true).execute().body();
+						String body = Jsoup.connect(SystemConstant.W3_URL).method(Connection.Method.GET)
+								.userAgent(UserAgentUtil.get())
+								.timeout(SystemConstant.TIME_OUT).cookies(cookies).followRedirects(true).execute().body();
 						if(body.contains("库存不足,当前最多可售数量")) {
 							System.err.println("库存不足 - " + new Date().toLocaleString());
 						} else if(body.contains("返回商品详情") || body.contains("cart_md5")) {
 				        	updateRsBody(body);
 				        }
 					} catch (Exception e) {
-//						e.printStackTrace();
+						System.out.println(e.getMessage());
 					}
 				}
 			}).start();
@@ -160,13 +167,18 @@ public class TestW1 {
 	}
 
     private static Map<String, String> getCookies(String username, String password) throws Exception {
-        Response pageResponse = Jsoup.connect("https://mall.phicomm.com/passport-login.html").method(Connection.Method.GET).timeout(SystemConstant.TIME_OUT).execute();
+        Response pageResponse = Jsoup.connect("https://mall.phicomm.com/passport-login.html")
+				.method(Connection.Method.GET)
+				.timeout(SystemConstant.TIME_OUT)
+				.userAgent(UserAgentUtil.get())
+				.execute();
         Map<String, String> pageCookies = pageResponse.cookies();
 
         Response loginResponse = Jsoup.connect("https://mall.phicomm.com/passport-post_login.html").method(Connection.Method.POST)
             .cookies(pageCookies)
             .timeout(SystemConstant.TIME_OUT)
             .ignoreContentType(true)
+			.userAgent(UserAgentUtil.get())
             .header("X-Requested-With", "XMLHttpRequest")
             .data("forward", "")
             .data("uname", username)
