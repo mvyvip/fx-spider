@@ -30,12 +30,13 @@ public class JdbcTest { //定义一个类
                     //.header("Content-Type", "application/x-www-form-urlencoded")
                     //.header("Upgrade-Insecure-Requests", "1")
                     .userAgent(UserAgentUtil.get())
-                    .data("maddr[name]", "李敏").proxy(proxyUtil2.getProxy())
-                    .data("maddr[mobile]", "15756343442")
-                    .data("maddr[area]", "mainland:四川省/成都市/双流县:2541")
-                    .data("maddr[addr]", "中和镇中胜路楠香山")
+                    .data("maddr[name]", "刘锦胜").proxy(proxyUtil2.getProxy())
+                    .data("maddr[mobile]", "13670823097")
+                    .data("maddr[area]", "mainland:广东省/深圳市/南山区:2180")
+                    .data("maddr[addr]", "东滨路4096号鸿丰大酒店三楼春满园")
                     .data("maddr[is_default]", "true")
                     .execute();
+
 
             System.out.println(account.getPhone() + "-------ok" + "----" + account.getPassword());
         } catch (Exception e){
@@ -57,7 +58,30 @@ public class JdbcTest { //定义一个类
             Statement stmt = conn.createStatement();   //8.构造一个statement对象来执行sql语句：主要有Statement，PreparedStatement，CallableStatement三种实例来实现
             ResultSet rs = stmt.executeQuery(querySql);//9.执行sql并返还结束 ；ResultSet executeQuery(String sqlString)：用于返还一个结果集（ResultSet）对象。
             while (rs.next()) {
-                accounts.add(new Account(rs.getString("phone"), rs.getString("password")));
+//                accounts.add(new Account(rs.getString("phone"), rs.getString("password")));
+            }
+
+            String s = "" +
+                    "13670823097----as123456\n" +
+                    "13714726769----as123456\n" +
+                    "13714725911----as123456\n" +
+                    "13631671644----as123456\n" +
+                    "17876145859----as123456\n" +
+                    "15113469717----as123456\n" +
+                    "13549325973----as123456\n" +
+                    "15976888913----as123456\n" +
+                    "18218021423----as123456\n" +
+                    "13265768913----16346275\n" +
+                    "13510576720----16346275\n" +
+                    "15999784159----16346275\n" +
+                    "15113469824----as123456\n" +
+                    "17875618283----as123456\n" +
+                    "15113469867----as123456";
+
+            String remark = "592504929";
+
+            for (String s1 : s.split("\n")) {
+                accounts.add(new Account(s1.split("----")[0], s1.split("----")[1]));
             }
 
             System.out.println(accounts.size());

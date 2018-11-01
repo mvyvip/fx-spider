@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.hs.reptilian.constant.SystemConstant;
 import com.hs.reptilian.model.Account;
 import com.hs.reptilian.model.OrderAccount;
-import com.hs.reptilian.model.TaskList;
 import com.hs.reptilian.repository.AccountRepository;
 import com.hs.reptilian.repository.OrderAccountRepository;
 import com.hs.reptilian.repository.TaskListRepository;
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -54,8 +52,23 @@ public class FxController {
     @GetMapping("/login")
     public ViewData login() throws Exception {
         List<OrderAccount> orderRepositoryByStatus = orderRepository.findByStatus("1");
-        log.info("本次需要初始化：[{}], 条数据");
+        log.info("本次需要初始化：[{}], 条数据", orderRepositoryByStatus.size());
+
         for (OrderAccount orderAccount : orderRepositoryByStatus) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        setAccountCookie(orderAccount);
+                    }catch (Exception e){
+                        log.error(e.getMessage());
+                    }
+                }
+            }).start();
+            Thread.sleep(500);
+        }
+
+     /*   for (OrderAccount orderAccount : orderRepositoryByStatus) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -67,7 +80,7 @@ public class FxController {
                 }
             }).start();
             Thread.sleep(30);
-        }
+        }*/
         return ViewData.builder().build();
     }
 
@@ -102,7 +115,74 @@ public class FxController {
         return "success";
     }
 
+
     private void setAccountCookie(OrderAccount orderAccount) throws Exception {
+        try {
+            String id = UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
+
+            Connection.Response execute = Jsoup.connect("https://mall.phicomm.com/openapi/hybirdappsetting/ios")
+                    .userAgent("VEC_customer/2.2.4 (iPhone; iOS 11.3.1; Scale/2.00)")
+                    .header("X-WxappStorage-SID", id)
+                    .cookie("_SID", id)
+                    .header("Accept-Language", "zh-Hans-CN;q=1")
+                    .header("Accept-Encoding", "br, gzip, deflate")
+                    .header("Connection", "keep-alive")
+                    .timeout(SystemConstant.TIME_OUT)
+                    .ignoreContentType(true)
+                    .execute();
+
+            Connection.Response pageResponse = Jsoup.connect("https://mall.phicomm.com/passport-login.html").method(org.jsoup.Connection.Method.GET)
+                    .userAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E302 VMCHybirdAPP-iOS/2.2.4/")
+                    .proxy(proxyUtil.getProxy())
+                    .header("X-WxappStorage-SID", id)
+                    .timeout(SystemConstant.TIME_OUT).execute();
+            Map<String, String> pageCookies = pageResponse.cookies();
+
+            Connection.Response loginResponse = Jsoup.connect("https://mall.phicomm.com/m/passport-post_login.html").method(org.jsoup.Connection.Method.POST)
+                    .cookies(pageResponse.cookies())
+                    .timeout(SystemConstant.TIME_OUT)
+                    .cookie("_SID", id)
+
+                    .ignoreContentType(true)
+                    .proxy(proxyUtil.getProxy())
+                    .header("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8;")
+                    .header("Set-jsonstorage", "jsonstorage")
+                    .header("Origin", "https://mall.phicomm.com")
+                    .userAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E302 VMCHybirdAPP-iOS/2.2.4/")
+                    .header("X-Requested-With", "XMLHttpRequest")
+                    .data("forward", "")
+                    .data("uname", orderAccount.getPhone())
+                    .data("password", orderAccount.getPassword())
+                    .execute();
+
+            if(loginResponse.body().contains("error")) {
+                throw new RuntimeException(JSON.parseObject(loginResponse.body()).toString());
+            }
+
+            Map<String, String> cks = new HashMap<>();
+            cks.putAll(pageResponse.cookies());
+            cks.putAll(loginResponse.cookies());
+            System.out.println(cks);
+
+            Account account = new Account();
+            account.setCreateDate(new Date());
+            account.setMemberIdent("https://mall.phicomm.com/vcode-index-passport" + loginResponse.cookie("MEMBER_IDENT") + ".html");
+            account.setMobile(orderAccount.getPhone());
+            account.setPassword(orderAccount.getPassword());
+            account.setRemark(orderAccount.getRemark());
+            account.setSid(cks.toString());
+            account.setStatus(1);
+            account.setAddrId(getAddrId(cks, account, 0));
+            accountRepository.save(account);
+
+            log.info(">>>>>>> " + atomicInteger.incrementAndGet());
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            setAccountCookie(orderAccount);
+        }
+    }
+
+   /* private void setAccountCookie(OrderAccount orderAccount) throws Exception {
         try {
             String id = UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
             Connection.Response pageResponse = Jsoup.connect("https://mall.phicomm.com/passport-login.html").method(org.jsoup.Connection.Method.GET)
@@ -133,23 +213,49 @@ public class FxController {
             }
 
             Map<String, String> cks = new HashMap<>();
+            cks.putAll(pageResponse.cookies());
             cks.putAll(loginResponse.cookies());
+            System.err.println(cks);
 
             Account account = new Account();
             account.setCreateDate(new Date());
-            account.setMemberIdent(loginResponse.cookie("MEMBER_IDENT"));
+            account.setMemberIdent("https://mall.phicomm.com/vcode-index-passport" + loginResponse.cookie("MEMBER_IDENT") + ".html");
             account.setMobile(orderAccount.getPhone());
             account.setPassword(orderAccount.getPassword());
             account.setRemark(orderAccount.getRemark());
-            account.setSid(id);
+            account.setSid(cks.toString());
             account.setStatus(1);
+            account.setAddrId(getAddrId(pageResponse.cookie("_SID").getSid(), account, 0));
             accountRepository.save(account);
 
-            log.info(">>>>>>> " + atomicInteger.decrementAndGet());
+            log.info(">>>>>>> " + atomicInteger.incrementAndGet());
 
         }catch (Exception e){
             log.error("提前登录失败：{}----{}-----{}" + orderAccount.getPhone(), orderAccount.getPassword(), e.getMessage());
             setAccountCookie(orderAccount);
+        }
+    }*/
+
+    private String getAddrId(Map<String, String> cks, Account account, int tryCount) {
+        try {
+            Document document = Jsoup.connect("https://mall.phicomm.com/my-receiver.html").method(Connection.Method.GET).cookies(cks)
+                    .timeout(SystemConstant.TIME_OUT).userAgent(UserAgentUtil.get())
+                    .proxy(proxyUtil.getProxy())
+                    .execute().parse();
+            Elements dds = document.select("dd.clearfix.editing");
+
+            if (dds == null || dds.size() == 0) {
+                log.info(account.getMobile() + "----" + account.getPassword() + "----无收货地址，请设置！！");
+                return null;
+            }
+            String[] split = dds.get(0).getElementsByTag("a").get(0).attr("href").split("-");
+            return split[split.length - 1].split("\\.")[0];
+        } catch (Exception e) {
+            tryCount++;
+            if(tryCount > 10) {
+                return null;
+            }
+            return getAddrId(cks, account, tryCount);
         }
     }
 
@@ -411,7 +517,7 @@ public class FxController {
                                 order.setOrderNo(elements.get(0).text().replaceAll("  ", "").trim());
                                 order.setOrderCreateDate(table.getElementsByTag("li").get(1).text().trim());
                                 order.setStatus(table.getElementsByTag("span").text().trim());
-                                order.setCookie(entry.getValue().get("_SID").toString());
+//                                order.setCookie(entry.getValue().get("_SID").toString());
                                 Date date = DateUtils.parseDateStrictly(order.getOrderCreateDate(), "yyyy-MM-dd HH:mm");
                                 if(date.getTime() > DateUtils.addDays(new Date(), -7).getTime() && !order.getStatus().equals("已取消")) {
                                     Elements aElements = table.getElementsByTag("a");

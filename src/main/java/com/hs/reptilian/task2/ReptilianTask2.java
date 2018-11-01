@@ -1,14 +1,17 @@
-package com.hs.reptilian.task;
+package com.hs.reptilian.task2;
 
 import com.hs.reptilian.constant.SystemConfigConstant;
 import com.hs.reptilian.constant.SystemConstant;
+import com.hs.reptilian.model.Account;
 import com.hs.reptilian.model.OrderAccount;
 import com.hs.reptilian.model.SystemConfig;
 import com.hs.reptilian.model.TaskList;
+import com.hs.reptilian.repository.AccountRepository;
 import com.hs.reptilian.repository.OrderAccountRepository;
 import com.hs.reptilian.repository.SystemConfigRepository;
 import com.hs.reptilian.repository.TaskListRepository;
 import com.hs.reptilian.task.runnable.SpliderRunnable;
+import com.hs.reptilian.task2.runnable.SpliderRunnable2;
 import com.hs.reptilian.util.ProxyUtil;
 import java.security.acl.LastOwnerException;
 import lombok.extern.slf4j.Slf4j;
@@ -26,11 +29,12 @@ import java.util.Collections;
 import java.util.List;
 
 @Slf4j
-//@Component
-public class ReptilianTask {
+@Component
+@SuppressWarnings("all")
+public class ReptilianTask2 {
 
     @Autowired
-    private OrderAccountRepository orderAccountRepository;
+    private AccountRepository accountRepository;
 
     @Autowired
     private ProxyUtil proxyUtil;
@@ -68,36 +72,39 @@ public class ReptilianTask {
         
         Thread.sleep(5 * 1000);
 
-        List<OrderAccount> accounts = orderAccountRepository.findByStatus("1");
+        List<Account> accounts = accountRepository.findAll();
         if((start + SystemConstant.SIZE) > accounts.size()) {
             start = accounts.size() - SystemConstant.SIZE;
+        }
+        if(SystemConstant.SIZE > accounts.size()) {
+            return;
         }
         List<Integer> updateCodeSeconds = SystemConstant.UPDATE_CODE_SECONDS;
         log.info("参与总数：{}, 开始下标：{}, 结束下标：{}", accounts.size(), start, start + SystemConstant.SIZE);
 
-      /*  accounts.clear();
-        OrderAccount oc = new OrderAccount();
-        oc.setPhone("13282083462");
+       /* accounts.clear();
+        Account oc = new Account();
+        oc.setMobile("13282083462");
         oc.setPassword("li5201314");
         accounts.add(oc);
 
 
-        OrderAccount oc2 = new OrderAccount();
-        oc2.setPhone("13843273254");
+        Account oc2 = new Account();
+        oc2.setMobile("13843273254");
         oc2.setPassword("li5201314");
         accounts.add(oc2);
 
 
-        OrderAccount oc3 = new OrderAccount();
-        oc3.setPhone("13944599642");
+        Account oc3 = new Account();
+        oc3.setMobile("13944599642");
         oc3.setPassword("li5201314");
         accounts.add(oc3);*/
 
         for (int i = start; i < start + SystemConstant.SIZE; i++) {
-            OrderAccount account = accounts.get(i);
+            Account account = accounts.get(i);
             try {
                 for (Integer updateCodeSecond : updateCodeSeconds) {
-                        new Thread(new SpliderRunnable(account.getPhone(), account.getPassword(), proxyUtil, updateCodeSecond, goods, goodsUrl, vc)).start();
+                        new Thread(new SpliderRunnable2(account, proxyUtil, updateCodeSecond, goods, goodsUrl, vc)).start();
                 }
             } catch (Exception e){
                 e.printStackTrace();
