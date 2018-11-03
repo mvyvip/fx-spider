@@ -1,6 +1,7 @@
 package com.hs.reptilian;
 
 import com.hs.reptilian.constant.SystemConstant;
+import com.hs.reptilian.util.ProxyUtil2;
 import com.hs.reptilian.util.UserAgentUtil;
 import java.util.Random;
 import org.jsoup.Connection.Method;
@@ -14,16 +15,33 @@ import org.jsoup.nodes.Document;
 public class FilterTest2 {
 
     public static void main(String[] args) throws Exception{
+//        ProxyUtil2 proxyUtil2 = new ProxyUtil2();
+//        proxyUtil2.initIps();
+//        proxyUtil2.getProxy();
+        int a = 1;
+        while (a==1) {
+            byte[] bytes = Jsoup.connect("https://mall.phicomm.com/vcode-index-passport6272948.html?d=0.010903156658214508")
+                    .ignoreContentType(true)
+                    .cookie("_SID", "DC9662635751408299A730DD532E8066")
+
+//                    .cookies(cookies)
+                    .userAgent(UserAgentUtil.get())
+//                    .proxy(proxyUtil.getProxy())
+                    .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes();
+            System.out.println(bytes);
+        }
+
 
        while (true) {
            try {
                String randomIp = getRandomIp();
                System.out.println(randomIp);
                System.out.println(randomIp.concat(":443"));
-               Document document = Jsoup.connect("http://job.phicomm.com/index.php/my-orders.html").method(Method.GET)
+               Document document = Jsoup.connect("http://mall.phicomm.com/index.php/my-orders.html").method(Method.GET)
                    .userAgent(UserAgentUtil.get())
                    .timeout(SystemConstant.TIME_OUT)
-                   .cookie("_SID", "DC9662635751408299A730DD532E8066")
+                       .header("Cookie", "_VMC_UID=2f5c392178fd38cf2b8da4bff3ecd32f; __jsluid=df842f7b477decdd19bfe5e4a75b70bb; _SID=16a69f4953d488f2df8af7a84dda41aa; goods_view_history=384G396G405G; from_vshopid=46225944878; Hm_lvt_c8bb97be004001570e447aa3e00ff0ad=1541007014,1541075135,1541103596,1541206933; Hm_lvt_d7682ab43891c68a00de46e9ce5b76aa=1540919048,1541088661,1541103608,1541214250; Hm_lvt_4532b50bd635e230f63e966a610afe18=1541224765; Hm_lpvt_4532b50bd635e230f63e966a610afe18=1541224765; c_dizhi=null; Hm_lpvt_d7682ab43891c68a00de46e9ce5b76aa=1541225941; UNAME=13648045607; MEMBER_IDENT=6272948; MEMBER_LEVEL_ID=1; CACHE_VARY=cc7c517108cedf81bf34cbb89f6539ab-0f063e018c840f8a56946ecec41a6c18; Hm_lpvt_c8bb97be004001570e447aa3e00ff0ad=1541226745")
+//                   .cookie("_SID", "DC9662635751408299A730DD532E8066")
                    .header("x-forward-for", randomIp)
                    .header("X-Forward-For", randomIp)
                    .header("X-Forwarded-For", randomIp)

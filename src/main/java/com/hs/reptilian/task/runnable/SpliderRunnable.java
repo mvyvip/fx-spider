@@ -10,6 +10,7 @@ import com.hs.reptilian.util.UserAgentUtil;
 import com.hs.reptilian.util.feifei.FeiFeiUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.Connection;
@@ -66,7 +67,43 @@ public class SpliderRunnable implements Runnable {
 
     private CountDownLatch countDownLatch = new CountDownLatch(1);
 
+    private CountDownLatch startDownLatch = new CountDownLatch(1);
+
     private AtomicBoolean initCodeFlag = new AtomicBoolean(true);
+
+
+    private void cacheCk() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Element body = Jsoup.connect("https://mall.phicomm.com/index.html")
+                                .timeout(SystemConstant.TIME_OUT)
+                                .cookies(cookies)
+                                .proxy(proxyUtil.getProxy())
+                                .userAgent(UserAgentUtil.get())
+                                .execute().parse().body();
+                        info(cookies + "----同步成功");
+                        Thread.sleep(RandomUtils.nextInt(5 * 60 * 1000, 10 * 60 * 1000));
+                    } catch (Exception e) {
+                        info(e.getMessage());
+                        try {
+                            Element body = Jsoup.connect("https://mall.phicomm.com/index.html")
+                                    .timeout(SystemConstant.TIME_OUT)
+                                    .cookies(cookies)
+                                    .proxy(proxyUtil.getProxy())
+                                    .userAgent(UserAgentUtil.get())
+                                    .execute().parse().body();
+                        } catch (Exception e2){
+                            info("二次缓存登录失败" + e2.getMessage());
+                        }
+                    }
+                }
+            }
+        }).start();
+    }
+
 
     @Override
     public void run() {
@@ -74,6 +111,19 @@ public class SpliderRunnable implements Runnable {
             cookies = getCookies(username, password, 0);
             if (MapUtils.isNotEmpty(cookies) && isNotOrdered(cookies) && vcIsEnough(cookies) && initData(cookies)) {
                 CookieUtils.addCookies(new OrderAccount(username, password), cookies);
+                cacheCk();
+                info("准备中" + cookies);
+                boolean falg = true;
+                while (falg) {
+                    Thread.sleep(50);
+                    if(new Date().getMinutes() == 59 && new Date().getSeconds() >= 50) {
+                        falg = false;
+                        startDownLatch.countDown();
+                        info("准备完毕，开始抢购");
+                    }
+                }
+
+                startDownLatch.await();
                 initBody(cookies);
 
                 countDownLatch.await();

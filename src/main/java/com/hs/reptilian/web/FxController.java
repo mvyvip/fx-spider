@@ -274,13 +274,40 @@ public class FxController {
         }
     }
 
+    private Connection.Response getOrders2(Map<String, String> cookies, Integer tryCount) {
+        try {
+            String randomIp = getRandomIp();
+            Connection.Response response = Jsoup.connect("https://mall.phicomm.com/index.php/my-orders.html")
+                    .method(Connection.Method.POST)
+                    .ignoreContentType(true)
+                    .timeout(50000)
+                    .userAgent(UserAgentUtil.get())
+                    .header("x-forward-for", randomIp)
+                    .header("X-Forwarded-For", randomIp)
+                    .header("client_ip", randomIp)
+                    .header("CLIENT_IP", randomIp)
+                    .header("REMOTE_ADDR", randomIp)
+                    .header("VIA", randomIp)
+                    .proxy(proxyUtil.getProxy())
+                    .cookies(cookies)
+                    .execute();
+            return response;
+        } catch (Exception e) {
+            tryCount++;
+            if(tryCount > 3) {
+                return null;
+            }
+            return getOrders2(cookies, tryCount);
+        }
+    }
+
     private Connection.Response getOrders(Map<String, String> cookies) {
         try {
             String randomIp = getRandomIp();
             Connection.Response response = Jsoup.connect("https://mall.phicomm.com/index.php/my-orders.html")
                     .method(Connection.Method.POST)
                     .ignoreContentType(true)
-                    .timeout(10000)
+                    .timeout(50000)
                     .userAgent(UserAgentUtil.get())
                     .header("x-forward-for", randomIp)
                     .header("X-Forwarded-For", randomIp)
@@ -357,7 +384,7 @@ public class FxController {
                                     }
 
 
-                                    if(date.getTime() > DateUtils.addDays(new Date(), -7).getTime() && !order.getStatus().equals("已取消")) {
+                                    if(date.getTime() > DateUtils.addDays(new Date(), -7).getTime()) {
                                         Elements aElements = table.getElementsByTag("a");
                                         setDetail(cookies, aElements, order, 0);
                                         order.setOrderCreateDate(table.getElementsByTag("li").get(1).text().trim());
@@ -455,7 +482,7 @@ public class FxController {
         try {
             String payUrl = "https://mall.phicomm.com/" + a.attr("href").replace("payment", "dopayment");
             Document dc = Jsoup.connect(payUrl)
-                    .timeout(120 * 1000)
+                    .timeout(100 * 1000)
                     .cookies(cookies).userAgent(UserAgentUtil.get())
                     .execute().parse();
             Elements inputs = dc.getElementsByTag("input");
@@ -472,18 +499,19 @@ public class FxController {
             if (tryCount < 3) {
                 return getBase64(a, cookies, tryCount);
             }
+            return "---";
         }
-        return "#";
     }
 
     @GetMapping("/fast/orders")
-    public Object fastFindAllOrder() throws Exception {
+    public Object fastFindAllOrder(Integer page, Integer limit) throws Exception {
         Map<String, Object> result = new HashMap<>();
         List<OrderAccount> orders = new ArrayList<>();
         List<OrderAccount> needGet = new ArrayList<>();
 
         AtomicInteger atomicInteger = new AtomicInteger(0);
         ConcurrentHashMap<OrderAccount, Map<String, String>> cookies = CookieUtils.getCookies();
+
         Set<Map.Entry<OrderAccount, Map<String, String>>> entries = cookies.entrySet();
         CountDownLatch countDownLatch = new CountDownLatch(entries.size());
         for (Map.Entry<OrderAccount, Map<String, String>> entry : entries) {
@@ -491,8 +519,8 @@ public class FxController {
                 @Override
                 public void run() {
                     try {
-                        Connection.Response response = getOrders(entry.getValue());
-                        if(!response.body().contains("暂无")) {
+                        Connection.Response response = getOrders2(entry.getValue(), 0);
+                        if(response != null && !response.body().contains("暂无")) {
                             Document document = Jsoup.parse(response.body());
                             Elements tables = document.getElementsByTag("table");
                             for (int i = 1; i < tables.size(); i++) {
@@ -501,7 +529,7 @@ public class FxController {
                                 Element table = tables.get(i);
 
                                 Elements as = table.getElementsByTag("a");
-                                order.setPayBase64("#");
+                                order.setPayBase64("---");
                                 for (Element a : as) {
                                     if(a.text().contains("立即付款")) {
 //                                        String base64 = getBase64(a, entry.getValue(), 0);

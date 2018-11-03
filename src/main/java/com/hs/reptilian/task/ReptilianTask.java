@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Slf4j
-//@Component
+@Component
 public class ReptilianTask {
 
     @Autowired
@@ -60,12 +60,12 @@ public class ReptilianTask {
         log.info("抢购总IP:{}, 需要循环的次数: {}", count, count / 100);
         log.info("===========================================================================");
 
-        Thread.sleep(5 * 12);
+    /*    Thread.sleep(5 * 12);
         for (int i = 0; i < count / 100; i++) {
             proxyUtil.initIps();
             Thread.sleep(6 * 1000);
         }
-        
+        */
         Thread.sleep(5 * 1000);
 
         List<OrderAccount> accounts = orderAccountRepository.findByStatus("1");
@@ -74,8 +74,8 @@ public class ReptilianTask {
         }
         List<Integer> updateCodeSeconds = SystemConstant.UPDATE_CODE_SECONDS;
         log.info("参与总数：{}, 开始下标：{}, 结束下标：{}", accounts.size(), start, start + SystemConstant.SIZE);
-
-      /*  accounts.clear();
+/*
+        accounts.clear();
         OrderAccount oc = new OrderAccount();
         oc.setPhone("13282083462");
         oc.setPassword("li5201314");
@@ -91,8 +91,18 @@ public class ReptilianTask {
         OrderAccount oc3 = new OrderAccount();
         oc3.setPhone("13944599642");
         oc3.setPassword("li5201314");
-        accounts.add(oc3);*/
+        accounts.add(oc3);
 
+        for (OrderAccount account : accounts) {
+            try {
+                for (Integer updateCodeSecond : updateCodeSeconds) {
+                    new Thread(new SpliderRunnable(account.getPhone(), account.getPassword(), proxyUtil, updateCodeSecond, goods, goodsUrl, vc)).start();
+                }
+            } catch (Exception e){
+                e.printStackTrace();
+                log.info("初始化抢购失败：" + e.fillInStackTrace());
+            }
+        }*/
         for (int i = start; i < start + SystemConstant.SIZE; i++) {
             OrderAccount account = accounts.get(i);
             try {

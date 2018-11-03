@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Slf4j
-@Component
+//@Component
 @SuppressWarnings("all")
 public class ReptilianTask2 {
 
@@ -64,12 +64,6 @@ public class ReptilianTask2 {
         log.info("抢购总IP:{}, 需要循环的次数: {}", count, count / 100);
         log.info("===========================================================================");
 
-        Thread.sleep(5 * 12);
-        for (int i = 0; i < count / 100; i++) {
-            proxyUtil.initIps();
-            Thread.sleep(6 * 1000);
-        }
-        
         Thread.sleep(5 * 1000);
 
         List<Account> accounts = accountRepository.findAll();

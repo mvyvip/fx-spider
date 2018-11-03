@@ -52,7 +52,7 @@ public class ProxyUtil {
                         if(getCanUsed() < count) {
                             initIps();
                         }
-                        Thread.sleep(30 * 1000);
+                        Thread.sleep(6 * 1000);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
