@@ -280,7 +280,7 @@ public class FxController {
             Connection.Response response = Jsoup.connect("https://mall.phicomm.com/index.php/my-orders.html")
                     .method(Connection.Method.POST)
                     .ignoreContentType(true)
-                    .timeout(50000)
+                    .timeout(60000)
                     .userAgent(UserAgentUtil.get())
                     .header("x-forward-for", randomIp)
                     .header("X-Forwarded-For", randomIp)
@@ -294,7 +294,7 @@ public class FxController {
             return response;
         } catch (Exception e) {
             tryCount++;
-            if(tryCount > 3) {
+            if(tryCount > 2) {
                 return null;
             }
             return getOrders2(cookies, tryCount);
@@ -482,7 +482,8 @@ public class FxController {
         try {
             String payUrl = "https://mall.phicomm.com/" + a.attr("href").replace("payment", "dopayment");
             Document dc = Jsoup.connect(payUrl)
-                    .timeout(100 * 1000)
+                    .timeout(60 * 1000)
+                    .proxy(proxyUtil.getProxy())
                     .cookies(cookies).userAgent(UserAgentUtil.get())
                     .execute().parse();
             Elements inputs = dc.getElementsByTag("input");
@@ -496,8 +497,8 @@ public class FxController {
         } catch (Exception e){
             log.error("获取二维码失败: " + e.getMessage());
             tryCount++;
-            if (tryCount < 3) {
-                return getBase64(a, cookies, tryCount);
+            if (tryCount < 2) {
+                return getPayUrl(a, cookies, tryCount);
             }
             return "---";
         }

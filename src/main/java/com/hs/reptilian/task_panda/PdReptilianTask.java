@@ -1,4 +1,4 @@
-package com.hs.reptilian.task;
+package com.hs.reptilian.task_panda;
 
 import com.hs.reptilian.constant.SystemConfigConstant;
 import com.hs.reptilian.constant.SystemConstant;
@@ -9,6 +9,8 @@ import com.hs.reptilian.repository.OrderAccountRepository;
 import com.hs.reptilian.repository.SystemConfigRepository;
 import com.hs.reptilian.repository.TaskListRepository;
 import com.hs.reptilian.task.runnable.SpliderRunnable;
+import com.hs.reptilian.task_panda.runnable.PdRunna;
+import com.hs.reptilian.util.PandaProxyUtil;
 import com.hs.reptilian.util.ProxyUtil;
 import java.security.acl.LastOwnerException;
 import lombok.extern.slf4j.Slf4j;
@@ -26,14 +28,14 @@ import java.util.Collections;
 import java.util.List;
 
 @Slf4j
-//@Component
-public class ReptilianTask {
+@Component
+public class PdReptilianTask {
 
     @Autowired
     private OrderAccountRepository orderAccountRepository;
 
     @Autowired
-    private ProxyUtil proxyUtil;
+    private PandaProxyUtil proxyUtil;
 
     @Autowired
     private SystemConfigRepository systemConfigRepository;
@@ -57,7 +59,7 @@ public class ReptilianTask {
 
         log.info("===========================================================================");
         log.info("今日抢购:{}, vc:{}, url:{}", goods, vc, goodsUrl);
-        log.info("抢购总IP:{}, 需要循环的次数: {}", count, count / 100);
+        log.info("抢购总IP:{}, 需要循环的次数: {}", count, count / 50);
         log.info("===========================================================================");
 
     /*    Thread.sleep(5 * 12);
@@ -107,7 +109,7 @@ public class ReptilianTask {
             OrderAccount account = accounts.get(i);
             try {
                 for (Integer updateCodeSecond : updateCodeSeconds) {
-                        new Thread(new SpliderRunnable(account.getPhone(), account.getPassword(), proxyUtil, updateCodeSecond, goods, goodsUrl, vc)).start();
+                        new Thread(new PdRunna(account.getPhone(), account.getPassword(), proxyUtil, updateCodeSecond, goods, goodsUrl, vc)).start();
                 }
             } catch (Exception e){
                 e.printStackTrace();
