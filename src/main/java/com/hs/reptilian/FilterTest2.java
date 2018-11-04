@@ -4,6 +4,9 @@ import com.hs.reptilian.constant.SystemConstant;
 import com.hs.reptilian.util.ProxyUtil2;
 import com.hs.reptilian.util.UserAgentUtil;
 import java.util.Random;
+import java.util.UUID;
+
+import org.jsoup.Connection;
 import org.jsoup.Connection.Method;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -19,11 +22,35 @@ public class FilterTest2 {
 //        proxyUtil2.initIps();
 //        proxyUtil2.getProxy();
         int a = 1;
+//        while (1== a) {
+            for (int i = 13000; i < 65535; i++) {
+                Thread.sleep(30);
+                int finalI = i;
+                new Thread(new Runnable() {
+                   @Override
+                   public void run() {
+                       try {
+                           // 106.75.223.239
+                           Connection.Response connect = Jsoup.connect("http://106.75.217.70:" + finalI).timeout(4000).execute();
+                           System.out.println(finalI + "----" + connect.parse().text());
+                           if(connect.parse().text().toString().contains("斐讯")) {
+                               System.exit(-1);
+                           }
+                       } catch (Exception e) {
+                           System.out.println(finalI + "--" + e.getMessage());
+                       }
+                   }
+               }).start();
+            }
+
+//        }
+
         while (a==1) {
-            byte[] bytes = Jsoup.connect("https://mall.phicomm.com/vcode-index-passport6272948.html?d=0.010903156658214508")
+            byte[] bytes = Jsoup.connect("http://106.75.217.70/vcode-index-passport6272948.html?d=0.010903156658214508")
                     .ignoreContentType(true)
                     .cookie("_SID", "DC9662635751408299A730DD532E8066")
-
+                    .header("X-DevTools-Emulate-Network-Conditions-Client-Id", UUID.randomUUID().toString().toUpperCase())
+                    .header("Upgrade-Insecure-Requests", "1")
 //                    .cookies(cookies)
                     .userAgent(UserAgentUtil.get())
 //                    .proxy(proxyUtil.getProxy())

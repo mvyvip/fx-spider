@@ -19,7 +19,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 @Slf4j
-@Component
+//@Component
 public class PdProxyReptilianTask {
 
     @Autowired

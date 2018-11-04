@@ -23,7 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
-//@Component
+@Component
 @SuppressWarnings("all")
 public class PandaProxyUtil {
 
@@ -33,7 +33,7 @@ public class PandaProxyUtil {
     private volatile AtomicInteger index = new AtomicInteger(0);
 
 
-    private static String url = "http://www.xiongmaodaili.com/xiongmao-web/api/glip?secret=09a87d5f626d223dbfa709260bd79a95&orderNo=GL20180927201535rll7z0xZ&count=" + 10 + "&isTxt=0&proxyType=1";
+    private static String url = "http://www.xiongmaodaili.com/xiongmao-web/api/glip?secret=09a87d5f626d223dbfa709260bd79a95&orderNo=GL201811040237388arDIuA3&count=" + 50 + "&isTxt=0&proxyType=1";
 
     private static List<ProxyEntity> ips = new ArrayList<>();
 

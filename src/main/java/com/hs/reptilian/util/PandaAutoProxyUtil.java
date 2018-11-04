@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
-@Component
+//@Component
 @SuppressWarnings("all")
 public class PandaAutoProxyUtil {
 

@@ -39,7 +39,7 @@ public class FxController {
     private OrderAccountRepository orderRepository;
 
     @Autowired
-    private PandaAutoProxyUtil proxyUtil;
+    private PandaProxyUtil proxyUtil;
 
     @Autowired
     private TaskListRepository taskListRepository;
@@ -97,7 +97,7 @@ public class FxController {
                        Connection.Response execute = Jsoup.connect("https://mall.phicomm.com/my-receiver-save.html").method(Connection.Method.POST).cookies(cookies)
                                .timeout(SystemConstant.TIME_OUT)
                                .ignoreContentType(true).userAgent(UserAgentUtil.get())
-                                .proxy(PandaAutoProxyUtil.ip, PandaAutoProxyUtil.port).header("Proxy-Authorization", PandaAutoProxyUtil.authHeader()).validateTLSCertificates(false)
+                                .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
                                .data("maddr[name]", "李涛")
                                .data("maddr[mobile]", "13648045607")
                                .data("maddr[area]", "mainland:四川省/成都市/金牛区:2533")
@@ -133,7 +133,7 @@ public class FxController {
 
             Connection.Response pageResponse = Jsoup.connect("https://mall.phicomm.com/passport-login.html").method(org.jsoup.Connection.Method.GET)
                     .userAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E302 VMCHybirdAPP-iOS/2.2.4/")
-                   .proxy(PandaAutoProxyUtil.ip, PandaAutoProxyUtil.port).header("Proxy-Authorization", PandaAutoProxyUtil.authHeader()).validateTLSCertificates(false)
+                    .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
                     .header("X-WxappStorage-SID", id)
                     .timeout(SystemConstant.TIME_OUT).execute();
             Map<String, String> pageCookies = pageResponse.cookies();
@@ -144,7 +144,7 @@ public class FxController {
                     .cookie("_SID", id)
 
                     .ignoreContentType(true)
-                   .proxy(PandaAutoProxyUtil.ip, PandaAutoProxyUtil.port).header("Proxy-Authorization", PandaAutoProxyUtil.authHeader()).validateTLSCertificates(false)
+                    .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
                     .header("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8;")
                     .header("Set-jsonstorage", "jsonstorage")
                     .header("Origin", "https://mall.phicomm.com")
@@ -240,7 +240,7 @@ public class FxController {
         try {
             Document document = Jsoup.connect("https://mall.phicomm.com/my-receiver.html").method(Connection.Method.GET).cookies(cks)
                     .timeout(SystemConstant.TIME_OUT).userAgent(UserAgentUtil.get())
-                    .proxy(PandaAutoProxyUtil.ip, PandaAutoProxyUtil.port).header("Proxy-Authorization", PandaAutoProxyUtil.authHeader()).validateTLSCertificates(false)
+                    .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
                     .execute().parse();
             Elements dds = document.select("dd.clearfix.editing");
 
@@ -265,7 +265,7 @@ public class FxController {
                     .cookies(cookies)
                     .userAgent(UserAgentUtil.get())
                     .timeout(SystemConstant.TIME_OUT)
-                   .proxy(PandaAutoProxyUtil.ip, PandaAutoProxyUtil.port).header("Proxy-Authorization", PandaAutoProxyUtil.authHeader()).validateTLSCertificates(false)
+                    .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
                     .execute().parse();
             String vc = parse.body().text().split("可用维C ")[1].split(" 冻结维C")[0];
             return vc;
@@ -288,7 +288,7 @@ public class FxController {
                     .header("CLIENT_IP", randomIp)
                     .header("REMOTE_ADDR", randomIp)
                     .header("VIA", randomIp)
-                   .proxy(PandaAutoProxyUtil.ip, PandaAutoProxyUtil.port).header("Proxy-Authorization", PandaAutoProxyUtil.authHeader()).validateTLSCertificates(false)
+                    .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
                     .cookies(cookies)
                     .execute();
             return response;
@@ -315,7 +315,7 @@ public class FxController {
                     .header("CLIENT_IP", randomIp)
                     .header("REMOTE_ADDR", randomIp)
                     .header("VIA", randomIp)
-                   .proxy(PandaAutoProxyUtil.ip, PandaAutoProxyUtil.port).header("Proxy-Authorization", PandaAutoProxyUtil.authHeader()).validateTLSCertificates(false)
+                    .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
                     .cookies(cookies)
                     .execute();
             return response;
@@ -373,7 +373,7 @@ public class FxController {
                                             Connection.Response execute = Jsoup.connect("https://mall.phicomm.com" + href)
                                                     .cookies(cookies).userAgent(UserAgentUtil.get())
                                                     .timeout(SystemConstant.TIME_OUT)
-                                                   .proxy(PandaAutoProxyUtil.ip, PandaAutoProxyUtil.port).header("Proxy-Authorization", PandaAutoProxyUtil.authHeader()).validateTLSCertificates(false)
+                                                    .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
                                                     .execute();
                                             if(execute.body().contains("订单确认收货成功")) {
                                                 log.info(orderAccount.getPhone() + "--- " + "收货成功");
@@ -483,7 +483,7 @@ public class FxController {
             String payUrl = "https://mall.phicomm.com/" + a.attr("href").replace("payment", "dopayment");
             Document dc = Jsoup.connect(payUrl)
                     .timeout(60 * 1000)
-                   .proxy(PandaAutoProxyUtil.ip, PandaAutoProxyUtil.port).header("Proxy-Authorization", PandaAutoProxyUtil.authHeader()).validateTLSCertificates(false)
+                    .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
                     .cookies(cookies).userAgent(UserAgentUtil.get())
                     .execute().parse();
             Elements inputs = dc.getElementsByTag("input");
@@ -602,7 +602,7 @@ public class FxController {
         try {
             Document detailOrder = Jsoup.connect("https://mall.phicomm.com" + (aElements.get(aElements.size() - 1).attr("href")))
                     .cookies(cookies).userAgent(UserAgentUtil.get())
-                   .proxy(PandaAutoProxyUtil.ip, PandaAutoProxyUtil.port).header("Proxy-Authorization", PandaAutoProxyUtil.authHeader()).validateTLSCertificates(false)
+                    .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
                     .timeout(SystemConstant.TIME_OUT).execute().parse();
 
             Elements dd = detailOrder.getElementsByTag("dd");
@@ -628,7 +628,7 @@ public class FxController {
             String randomIp = getRandomIp();
             Map<String, String> pageCookies = Jsoup.connect("https://mall.phicomm.com/passport-login.html")
                     .method(Connection.Method.GET).timeout(SystemConstant.TIME_OUT)
-                   .proxy(PandaAutoProxyUtil.ip, PandaAutoProxyUtil.port).header("Proxy-Authorization", PandaAutoProxyUtil.authHeader()).validateTLSCertificates(false)
+                    .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
                     .userAgent(UserAgentUtil.get())
                     .header("x-forward-for", randomIp)
                     .header("X-Forwarded-For", randomIp)
@@ -638,7 +638,7 @@ public class FxController {
                     .header("VIA", randomIp)
                     .execute().cookies();
             Connection.Response loginResponse = Jsoup.connect("https://mall.phicomm.com/passport-post_login.html")
-                   .proxy(PandaAutoProxyUtil.ip, PandaAutoProxyUtil.port).header("Proxy-Authorization", PandaAutoProxyUtil.authHeader()).validateTLSCertificates(false)
+                    .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
                     .method(Connection.Method.POST)
                     .userAgent(UserAgentUtil.get())
                     .cookies(pageCookies)
@@ -755,7 +755,7 @@ public class FxController {
             Document parse = Jsoup.connect("https://mall.phicomm.com/my-vclist.html")
                     .cookies(cookies)
                     .timeout(SystemConstant.TIME_OUT)
-                   .proxy(PandaAutoProxyUtil.ip, PandaAutoProxyUtil.port).header("Proxy-Authorization", PandaAutoProxyUtil.authHeader()).validateTLSCertificates(false)
+                    .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
                     .header("x-forward-for", randomIp)
                     .header("X-Forwarded-For", randomIp)
                     .header("client_ip", randomIp)
@@ -778,7 +778,7 @@ public class FxController {
                     .header("REMOTE_ADDR", randomIp)
                     .userAgent(UserAgentUtil.get())
                     .header("VIA", randomIp)
-                   .proxy(PandaAutoProxyUtil.ip, PandaAutoProxyUtil.port).header("Proxy-Authorization", PandaAutoProxyUtil.authHeader()).validateTLSCertificates(false)
+                    .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
                     .execute().parse();
 
             if(info.body().text().contains("已认证")) {
@@ -798,7 +798,7 @@ public class FxController {
         try {
             String randomIp = getRandomIp();
             Document document = Jsoup.connect("https://mall.phicomm.com/my-receiver.html").method(Connection.Method.GET).cookies(cookie).timeout(SystemConstant.TIME_OUT)
-                   .proxy(PandaAutoProxyUtil.ip, PandaAutoProxyUtil.port).header("Proxy-Authorization", PandaAutoProxyUtil.authHeader()).validateTLSCertificates(false)
+                    .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
                     .header("x-forward-for", randomIp)
                     .header("X-Forwarded-For", randomIp)
                     .userAgent(UserAgentUtil.get())
