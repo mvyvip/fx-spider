@@ -117,7 +117,7 @@ public class PdProxyRunna implements Runnable {
                 boolean falg = true;
                 while (falg) {
                     Thread.sleep(50);
-                    if(new Date().getMinutes() == 31 && new Date().getSeconds() >= 50) {
+                    if(new Date().getMinutes() == 59 && new Date().getSeconds() >= 50) {
                         falg = false;
                         startDownLatch.countDown();
                         info("准备完毕，开始抢购");
