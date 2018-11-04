@@ -23,7 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
-@Component
+//@Component
 @SuppressWarnings("all")
 public class PandaProxyUtil {
 

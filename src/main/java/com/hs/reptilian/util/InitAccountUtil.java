@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -25,7 +26,7 @@ public class InitAccountUtil {
     @Autowired
     private OrderAccountRepository orderAccountRepository;
 
-    @Autowired
+    @Autowired(required = false)
     private ProxyUtil proxyUtil;
 
 

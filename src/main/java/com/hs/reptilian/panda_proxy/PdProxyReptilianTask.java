@@ -1,41 +1,32 @@
-package com.hs.reptilian.task_panda;
+package com.hs.reptilian.panda_proxy;
 
 import com.hs.reptilian.constant.SystemConfigConstant;
 import com.hs.reptilian.constant.SystemConstant;
 import com.hs.reptilian.model.OrderAccount;
-import com.hs.reptilian.model.SystemConfig;
-import com.hs.reptilian.model.TaskList;
+import com.hs.reptilian.panda_proxy.runnable.PdProxyRunna;
 import com.hs.reptilian.repository.OrderAccountRepository;
 import com.hs.reptilian.repository.SystemConfigRepository;
-import com.hs.reptilian.repository.TaskListRepository;
-import com.hs.reptilian.task.runnable.SpliderRunnable;
 import com.hs.reptilian.task_panda.runnable.PdRunna;
+import com.hs.reptilian.util.PandaAutoProxyUtil;
 import com.hs.reptilian.util.PandaProxyUtil;
-import com.hs.reptilian.util.ProxyUtil;
-import java.security.acl.LastOwnerException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
-//@Component
-public class PdReptilianTask {
+@Component
+public class PdProxyReptilianTask {
 
     @Autowired
     private OrderAccountRepository orderAccountRepository;
 
     @Autowired
-    private PandaProxyUtil proxyUtil;
+    private PandaAutoProxyUtil proxyUtil;
 
     @Autowired
     private SystemConfigRepository systemConfigRepository;
@@ -109,7 +100,7 @@ public class PdReptilianTask {
             OrderAccount account = accounts.get(i);
             try {
                 for (Integer updateCodeSecond : updateCodeSeconds) {
-                        new Thread(new PdRunna(account.getPhone(), account.getPassword(), proxyUtil, updateCodeSecond, goods, goodsUrl, vc)).start();
+                        new Thread(new PdProxyRunna(account.getPhone(), account.getPassword(), proxyUtil, updateCodeSecond, goods, goodsUrl, vc)).start();
                 }
             } catch (Exception e){
                 e.printStackTrace();

@@ -17,7 +17,7 @@ import java.net.Proxy;
 import java.util.*;
 
 @Slf4j
-@Component
+//@Component
 public class ProxyUtil {
 
     @Value("${key}")
