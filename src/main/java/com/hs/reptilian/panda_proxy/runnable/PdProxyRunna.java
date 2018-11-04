@@ -112,8 +112,8 @@ public class PdProxyRunna implements Runnable {
             cookies = getCookies(username, password, 0);
             if (MapUtils.isNotEmpty(cookies) && isNotOrdered(cookies) && vcIsEnough(cookies) && initData(cookies)) {
                 CookieUtils.addCookies(new OrderAccount(username, password), cookies);
-//                cacheCk();
-            /*    info("准备中" + cookies);
+                cacheCk();
+                info("准备中" + cookies);
                 boolean falg = true;
                 while (falg) {
                     Thread.sleep(50);
@@ -124,7 +124,7 @@ public class PdProxyRunna implements Runnable {
                     }
                 }
 
-                startDownLatch.await();*/
+                startDownLatch.await();
                 initBody(cookies);
 
                 countDownLatch.await();
