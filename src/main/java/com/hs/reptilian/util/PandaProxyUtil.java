@@ -6,6 +6,7 @@ import com.hs.reptilian.constant.SystemConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,8 +33,7 @@ public class PandaProxyUtil {
 
     private volatile AtomicInteger index = new AtomicInteger(0);
 
-
-    private static String url = "http://www.xiongmaodaili.com/xiongmao-web/api/glip?secret=09a87d5f626d223dbfa709260bd79a95&orderNo=GL201811040237388arDIuA3&count=" + 50 + "&isTxt=0&proxyType=1";
+    private static String url = "http://www.xiongmaodaili.com/xiongmao-web/api/glip?secret=09a87d5f626d223dbfa709260bd79a95&orderNo=GL20180927201535rll7z0xZ&count=" + 5 + "&isTxt=0&proxyType=1";
 
     private static List<ProxyEntity> ips = new ArrayList<>();
 
@@ -41,23 +41,21 @@ public class PandaProxyUtil {
     public synchronized void init() throws Exception {
         initIps();
         Thread.sleep(1500);
-        initIps();
-        Thread.sleep(1500);
+        task();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 while (true) {
                     try {
+                        ips.clear();
                         initIps();
-                        Thread.sleep(200 * 1000);
+                        Thread.sleep(4 * 60 * 1000);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             }
         }).start();
-
-        task();
     }
 
     public void task() {

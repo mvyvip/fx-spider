@@ -1,39 +1,29 @@
 package com.hs.reptilian;
 
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
-import com.gargoylesoftware.htmlunit.Page;
-import com.gargoylesoftware.htmlunit.StatusHandler;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebRequest;
-import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.hs.reptilian.constant.SystemConstant;
 import com.hs.reptilian.util.RuoKuaiUtils;
 import com.hs.reptilian.util.UserAgentUtil;
-import java.net.URL;
-import java.util.List;
-import org.jsoup.Connection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.jsoup.Connection.Method;
 import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 @SuppressWarnings("all")
-public class TestW1 {
-	
+public class TestW122RS {
+
 	private static volatile String rsbody = null;
-	
+
 	public static void main(String[] args) throws Exception {
 		Map<String, String> cookies = getCookies("13270077763", "123321a");
 
@@ -66,7 +56,7 @@ public class TestW1 {
 						@Override
 						public void run() {
 							try {
-								Response createOrderResponse = Jsoup.connect("https://mall.phicomm.com/order-create-is_fastbuy.html").method(Connection.Method.POST).timeout(SystemConstant.TIME_OUT).ignoreContentType(true)
+								Response createOrderResponse = Jsoup.connect("https://mall.phicomm.com/order-create-is_fastbuy.html").method(Method.POST).timeout(SystemConstant.TIME_OUT).ignoreContentType(true)
 									.cookies(cookies)
 									.header("X-Requested-With", "XMLHttpRequest")
 									.data("cart_md5", cart_md5)
@@ -121,7 +111,7 @@ public class TestW1 {
 				@Override
 				public void run() {
 					try {
-						String body = Jsoup.connect(SystemConstant.W3_URL).method(Connection.Method.GET)
+						String body = Jsoup.connect(SystemConstant.W3_URL).method(Method.GET)
 								.userAgent(UserAgentUtil.get())
 								.timeout(SystemConstant.TIME_OUT).cookies(cookies).followRedirects(true).execute().body();
 						if(body.contains("库存不足,当前最多可售数量")) {
@@ -182,42 +172,40 @@ public class TestW1 {
 
     private static Map<String, String> getCookies(String username, String password) throws Exception {
 
-//		Response execute2 = Jsoup.connect("https://mall.phicomm.com/m/passport-login.html")
-//			.userAgent(
-//				"Mozilla/5.0 (iPhone; CPU iPhone OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.0 Mobile/15E148 Safari/604.1")
-//			.header("Cookie", "_SID=f7c8fb289bed4d70c4be71783ce2a4a0; CACHE_VARY=79e9a2cfad5b086e9017de76915a505c-e1fbe29478bfe3016b1e59a6be6690fa; _VMC_UID=251276aa1c62240eb6d49d3e5c2781f4; __jsl_clearance=1541407977.869|0|Bxjxe8UvUWPdrirA2Sdya9Rktu8%3D; __jsluid=5c6d1f6741536e1e959cba90b9d4a644")
-//
-//			.timeout(30 * 1000)
-//			.execute();
-//		System.out.println(execute2.body());
-//
-//		Response execute1 = Jsoup.connect("https://mall.phicomm.com/m/passport-post_login.html")
-//			.method(Method.POST)
-//			.timeout(30 * 1000)
-//			.ignoreContentType(true)
-//			.header("Cookie", "_SID=f7c8fb289bed4d70c4be71783ce2a4a0; CACHE_VARY=79e9a2cfad5b086e9017de76915a505c-e1fbe29478bfe3016b1e59a6be6690fa; _VMC_UID=251276aa1c62240eb6d49d3e5c2781f4; __jsl_clearance=1541407977.869|0|Bxjxe8UvUWPdrirA2Sdya9Rktu8%3D; __jsluid=5c6d1f6741536e1e959cba90b9d4a644")
-//			.header("Host", "mall.phicomm.com")
-//			.header("Accept", "*/*")
-//			.header("X-Requested-With", "XMLHttpRequest")
-////			.header("Accept-Language", "zh-cn")
-////			.header("Accept-Encoding", "br, gzip, deflate")
-//			.header("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8;")
-//			.header("Set-jsonstorage", "jsonstorage")
-//			.header("Origin", "https://mall.phicomm.com")
-//			.header("User-Agent",
-//				"Mozilla/5.0 (iPhone; CPU iPhone OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.0 Mobile/15E148 Safari/604.1")
-//			.header("Referer", "https://mall.phicomm.com/m/passport-login.html")
-////			.header("DNT", "1")
-////			.header("X-CSRF-TOKEN", "")
-////			.header("Connection", "keep-alive")
-//			.data("uname", "13648045607")
-//			.data("password", "li5201314")
-//			.data("forward", "")
-//			.execute();
-//		System.out.println(execute1.cookies());
-//		System.err.println(JSON.parseObject(execute1.body()));
-//
-//		Thread.sleep(100000);
+		Response execute2 = Jsoup.connect("https://mall.phicomm.com/m/passport-login.html")
+			.userAgent(
+				"Mozilla/5.0 (iPhone; CPU iPhone OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.0 Mobile/15E148 Safari/604.1")
+			.header("Cookie", "Hm_lpvt_806df8bf4f865af1db1c724887359a8c=1541408852; Hm_lvt_806df8bf4f865af1db1c724887359a8c=1541407982; _SID=f7c8fb289bed4d70c4be71783ce2a4a0; CACHE_VARY=79e9a2cfad5b086e9017de76915a505c-e1fbe29478bfe3016b1e59a6be6690fa; _VMC_UID=251276aa1c62240eb6d49d3e5c2781f4; __jsl_clearance=1541407977.869|0|Bxjxe8UvUWPdrirA2Sdya9Rktu8%3D; __jsluid=5c6d1f6741536e1e959cba90b9d4a644")
+			.timeout(30 * 1000)
+			.execute();
+		System.out.println(execute2.body());
+
+		Response execute1 = Jsoup.connect("https://mall.phicomm.com/m/passport-post_login.html")
+			.method(Method.POST)
+			.timeout(30 * 1000)
+			.ignoreContentType(true)
+			.header("Cookie", "Hm_lpvt_806df8bf4f865af1db1c724887359a8c=1541408738; Hm_lvt_806df8bf4f865af1db1c724887359a8c=1541407982; _SID=f7c8fb289bed4d70c4be71783ce2a4a0; CACHE_VARY=79e9a2cfad5b086e9017de76915a505c-e1fbe29478bfe3016b1e59a6be6690fa; _VMC_UID=251276aa1c62240eb6d49d3e5c2781f4; __jsl_clearance=1541407977.869|0|Bxjxe8UvUWPdrirA2Sdya9Rktu8%3D; __jsluid=5c6d1f6741536e1e959cba90b9d4a644")
+			.header("Host", "mall.phicomm.com")
+			.header("Accept", "*/*")
+			.header("X-Requested-With", "XMLHttpRequest")
+//			.header("Accept-Language", "zh-cn")
+//			.header("Accept-Encoding", "br, gzip, deflate")
+			.header("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8;")
+			.header("Set-jsonstorage", "jsonstorage")
+			.header("Origin", "https://mall.phicomm.com")
+			.header("User-Agent",
+				"Mozilla/5.0 (iPhone; CPU iPhone OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.0 Mobile/15E148 Safari/604.1")
+			.header("Referer", "https://mall.phicomm.com/m/passport-login.html")
+//			.header("DNT", "1")
+//			.header("X-CSRF-TOKEN", "")
+//			.header("Connection", "keep-alive")
+			.data("uname", "15756343442")
+			.data("password", "li5201314")
+			.data("forward", "")
+			.execute();
+		System.out.println(execute1.body());
+		System.out.println(execute1.cookies());
+		Thread.sleep(100 * 1000);
 
 		/*final WebClient webClient = new WebClient(BrowserVersion.CHROME);
 		final HtmlPage page = webClient.getPage("https://mall.phicomm.com/passport-login.html");
@@ -258,40 +246,31 @@ public class TestW1 {
 			cookies.put(cookie.getName(), cookie.getValue());
 		}
 
-		HtmlPage page2 = (HtmlPage) client.getPage("https://mall.phicomm.com/m/passport-login.html");
+		/*HtmlPage page2 = (HtmlPage) client.getPage("https://mall.phicomm.com/m/passport-login.html");
 		System.out.println("================================");
 		for (Cookie cookie : client.getCookieManager().getCookies()) {
-			System.err.println(cookie.getName() + "=======" + cookie.getValue());
+			System.err.println(cookie.getName() + "====" + cookie.getValue());
 			cookies.put(cookie.getName(), cookie.getValue());
 		}
 
+		System.err.println(page2.asText());
+		List<HtmlForm> forms = page2.getForms();
+		for (HtmlForm form : forms) {
+			System.out.println(form);
+		}
+
+		List<HtmlForm> forms1 = page.getForms();
+		for (HtmlForm htmlForm : forms1) {
+			System.out.println(htmlForm);
+		}
+
+		System.out.println(client.getCookieManager().getCookie("__jsl_clearance").getValue());
+		System.out.println(client.getCookieManager().getCookie("__jsluid").getValue());
+*/
+
+
 //		client.getPage(new WebRequest(new URL("https://mall.phicomm.com/m/passport-post_login.html"), HttpMethod.POST))
 
-
-		Response execute1 = Jsoup.connect("https://mall.phicomm.com/m/passport-post_login.html")
-			.method(Method.POST)
-			.timeout(30 * 1000)
-			.ignoreContentType(true)
-			.cookies(cookies)
-			.header("Host", "mall.phicomm.com")
-			.header("Accept", "*/*")
-			.header("X-Requested-With", "XMLHttpRequest")
-//			.header("Accept-Language", "zh-cn")
-//			.header("Accept-Encoding", "br, gzip, deflate")
-			.header("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8;")
-			.header("Set-jsonstorage", "jsonstorage")
-			.header("Origin", "https://mall.phicomm.com")
-			.header("User-Agent",
-				"Mozilla/5.0 (iPhone; CPU iPhone OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.0 Mobile/15E148 Safari/604.1")
-			.header("Referer", "https://mall.phicomm.com/m/passport-login.html")
-//			.header("DNT", "1")
-//			.header("X-CSRF-TOKEN", "")
-//			.header("Connection", "keep-alive")
-			.data("uname", "13655544444")
-			.data("password", "12312313213")
-			.data("forward", "")
-			.execute();
-		System.err.println(execute1.body());
 
 
 		Response execute = Jsoup.connect("https://mall.phicomm.com/m/passport-login.html")
@@ -316,7 +295,7 @@ public class TestW1 {
 		cookies.put("__jsl_clearance", "1541384192.07|0|DJwCT7xACp7jGrUddQgi%2FRuyZew%3D");
 
 
-        Response loginResponse = Jsoup.connect("https://mall.phicomm.com/passport-post_login.html").method(Connection.Method.POST)
+        Response loginResponse = Jsoup.connect("https://mall.phicomm.com/passport-post_login.html").method(Method.POST)
             .cookies(cookies)
             .timeout(SystemConstant.TIME_OUT)
             .ignoreContentType(true)

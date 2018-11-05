@@ -86,7 +86,7 @@ public class PdRunna implements Runnable {
                                 .userAgent(UserAgentUtil.get())
                                 .execute().parse().body();
                         info(cookies + "----同步成功");
-                        Thread.sleep(RandomUtils.nextInt(5 * 60 * 1000, 10 * 60 * 1000));
+                        Thread.sleep(RandomUtils.nextInt(3 * 60 * 1000, 4 * 60 * 1000));
                     } catch (Exception e) {
                         info(e.getMessage());
                         try {
@@ -371,7 +371,12 @@ public class PdRunna implements Runnable {
                     .method(Connection.Method.GET).timeout(SystemConstant.TIME_OUT)
                     .userAgent(UserAgentUtil.get())
                     .proxy(proxyUtil.getProxy())
+                    .header("Cookie", "__jsluid=033669c3fbed148d3d326d9b43bdfd2d; __jsl_clearance=1541384192.07|0|DJwCT7xACp7jGrUddQgi%2FRuyZew%3D")
                     .execute().cookies();
+            pageCookies.put("__jsluid", "033669c3fbed148d3d326d9b43bdfd2d");
+            pageCookies.put("__jsl_clearance", "1541384192.07|0|DJwCT7xACp7jGrUddQgi%2FRuyZew%3D");
+//            pageCookies.put("", "");
+
             Connection.Response loginResponse = Jsoup.connect("https://mall.phicomm.com/passport-post_login.html")
                     .proxy(proxyUtil.getProxy())
                     .method(Connection.Method.POST)
