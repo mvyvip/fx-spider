@@ -799,9 +799,9 @@ public class FxController {
             String randomIp = getRandomIp();
             Document document = Jsoup.connect("https://mall.phicomm.com/my-receiver.html").method(Connection.Method.GET).cookies(cookie).timeout(SystemConstant.TIME_OUT)
                     .proxy(proxyUtil.getProxy()).validateTLSCertificates(false)
+                    .userAgent(UserAgentUtil.get())
                     .header("x-forward-for", randomIp)
                     .header("X-Forwarded-For", randomIp)
-                    .userAgent(UserAgentUtil.get())
                     .header("client_ip", randomIp)
                     .header("CLIENT_IP", randomIp)
                     .header("REMOTE_ADDR", randomIp)
