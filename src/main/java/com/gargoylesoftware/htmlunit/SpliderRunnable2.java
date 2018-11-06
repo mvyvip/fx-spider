@@ -62,6 +62,7 @@ public class SpliderRunnable2 {
                                     .header("Host", "mall.phicomm.com")
                                     .header("Referer", "https://mall.phicomm.com/checkout-fastbuy.html")
                                     .header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36")
+                                        .followRedirects(true)
 //                                    .userAgent(UserAgentUtil.get())
 //                                    .proxy(proxyUtil.getProxy())
                                     .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());

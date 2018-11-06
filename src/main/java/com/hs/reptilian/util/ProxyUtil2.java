@@ -63,7 +63,7 @@ public class ProxyUtil2 {
 
     public synchronized List<ProxyEntity> initIps() {
       try {
-          Connection.Response response = Jsoup.connect("http://h.wandouip.com/get/ip-list?pack=0&num=" + 30 + "&xy=2&type=2&lb=\\r\\n&mr=2&app_key=" + "e3f7701602d479539ddf274905be3043")
+          Connection.Response response = Jsoup.connect("http://h.wandouip.com/get/ip-list?pack=0&num=" + 30 + "&xy=2&type=2&lb=\\r\\n&mr=2&app_key=" + "f0c35c13b2fffac65e411939bc2de921")
                   .timeout(SystemConstant.TIME_OUT)
                   .ignoreContentType(true)
                   .header("Content-Type", "application/json; charset=UTF-8")
