@@ -24,4 +24,10 @@ public class HSReptilianApplication {
 		return "redirect:/order.html";
 	}
 
+	@RequestMapping("/test")
+	public String test() {
+		return "redirect:/test.html";
+	}
+
+
 }
