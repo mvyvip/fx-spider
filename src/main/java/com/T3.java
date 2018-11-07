@@ -13,6 +13,7 @@ import java.util.Random;
 public class T3 {
 
     public static List<String> hosts = new ArrayList<>();
+    public static ProxyUtil2 proxyUtil2 = new ProxyUtil2();
 
     public static Integer index = 0;
 
@@ -49,35 +50,64 @@ public class T3 {
 //        }
 //        Thread.sleep(10000000);
 
-        ProxyUtil2 proxyUtil2 = new ProxyUtil2();
         proxyUtil2.initIps();
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 1; i++) {
             String randomIp = "60.31.89.2";
             Connection.Response execute = Jsoup.connect("https://mall.phicomm.com/index.php/my-orders.html")
                     .timeout(100000)
-//                .header("Host", "mall.phicomm.com")
-//                .header("Host", "122.228.238.92")
-                    .header("Host", getHosts())
-                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.36")
+//                .header("Host", "www.baidu.com")
+                .header("Host", "http://info.bet007.com")
+//                    .header("Host", getHosts())
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36")
                     .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
                     .header("Referer", "https://mall.phicomm.com/checkout-fastbuy.html")
                     .header("Connection", "keep-alive")
-                    .header("Cookie", "__jsluid=6d3709ce0c1d71f725f787f3a0bb50c4; _VMC_UID=319a15641a88a47d4b05a4e3bedb58f2; Hm_lvt_c8bb97be004001570e447aa3e00ff0ad=1541512655; _SID=f94a4a4e38754fd6f1dab815026e1edc; UNAME=18585816873; MEMBER_IDENT=6460242; MEMBER_LEVEL_ID=1; CACHE_VARY=46d5e43f688a17ceb1fcf77a3b629ebb-0f063e018c840f8a56946ecec41a6c18; c_peisong=1; c_zhifu=alipay; c_dizhi=null; __jsl_clearance=1541516857.396|0|2FDklvlSK4I48FTE37IpVM7D5Ek%3D; Hm_lvt_d7682ab43891c68a00de46e9ce5b76aa=1541517143; Hm_lpvt_d7682ab43891c68a00de46e9ce5b76aa=1541517271; Hm_lpvt_c8bb97be004001570e447aa3e00ff0ad=1541518023")
+                    .header("Cookie", "__jsluid=54d5a8a8c765c62f3287be364a258866; _VMC_UID=b74619d868761593c39e79325ad9205e; _SID=e46b208b9496d73ef77d344cd06c6764; Hm_lvt_c8bb97be004001570e447aa3e00ff0ad=1541400392,1541402956,1541406051,1541472828; MEMBER_LEVEL_ID=1; c_dizhi=769478; c_peisong=1; c_zhifu=alipay; Hm_lvt_d7682ab43891c68a00de46e9ce5b76aa=1541559313; __jsl_clearance=1541559779.732|0|oBsx%2Fm%2B5CtGv5yFdfwcpZA%2Fyl08%3D; CACHE_VARY=f7fcece073fc929eaa679bd488609349-0f063e018c840f8a56946ecec41a6c18; UNAME=18585816873; MEMBER_IDENT=6460242; Hm_lpvt_d7682ab43891c68a00de46e9ce5b76aa=1541560198; Hm_lpvt_c8bb97be004001570e447aa3e00ff0ad=1541560299")
 //                .proxy(proxyUtil2.getProxy())
 //                .cookie("__jsluid", "6d3709ce0c1d71f725f787f3a0bb50c4")
 //                .cookie("__jsl_clearance", "1541516857.396|0|2FDklvlSK4I48FTE37IpVM7D5Ek%3D")
                     .header("Upgrade-Insecure-Requests", "1")
 //                .proxy( new Proxy(Proxy.Type.HTTP, new InetSocketAddress("60.31.89.2", 22309)))
-                    .header("x-forward-for", randomIp)
-                    .header("X-Forwarded-For", randomIp)
-                    .header("client_ip", randomIp)
-                    .header("CLIENT_IP", randomIp)
-                    .header("REMOTE_ADDR", randomIp)
-                    .header("VIA", randomIp)
+//                    .header("x-forward-for", randomIp)
+//                    .header("X-Forwarded-For", randomIp)
+//                    .header("client_ip", randomIp)
+//                    .header("CLIENT_IP", randomIp)
+//                    .header("REMOTE_ADDR", randomIp)
+//                    .header("VIA", randomIp)
                     .execute();
             System.out.println(execute.cookies());
             System.out.println(execute.body());
         }
+    }
+
+    public static String getJs() {
+       try {
+           Connection.Response execute = Jsoup.connect("https://mall.phicomm.com/index.php/my-orders.html")
+               .timeout(100000)
+                .header("Host", "mall.phicomm.com")
+//               .header("Host", "http://info.bet007.com")
+//                    .header("Host", getHosts())
+               .header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36")
+               .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+               .header("Referer", "https://mall.phicomm.com/checkout-fastbuy.html")
+               .header("Connection", "keep-alive")
+               .header("Cookie", "__jsluid=54d5a8a8c765c62f3287be364a258866; _VMC_UID=b74619d868761593c39e79325ad9205e; _SID=e46b208b9496d73ef77d344cd06c6764; Hm_lvt_c8bb97be004001570e447aa3e00ff0ad=1541400392,1541402956,1541406051,1541472828; MEMBER_LEVEL_ID=1; c_dizhi=769478; c_peisong=1; c_zhifu=alipay; Hm_lvt_d7682ab43891c68a00de46e9ce5b76aa=1541559313; __jsl_clearance=1541559779.732|0|oBsx%2Fm%2B5CtGv5yFdfwcpZA%2Fyl08%3D; CACHE_VARY=f7fcece073fc929eaa679bd488609349-0f063e018c840f8a56946ecec41a6c18; UNAME=18585816873; MEMBER_IDENT=6460242; Hm_lpvt_d7682ab43891c68a00de46e9ce5b76aa=1541560198; Hm_lpvt_c8bb97be004001570e447aa3e00ff0ad=1541560874")
+//               .proxy(proxyUtil2.getProxy())
+//                .cookie("__jsluid", "6d3709ce0c1d71f725f787f3a0bb50c4")
+//                .cookie("__jsl_clearance", "1541516857.396|0|2FDklvlSK4I48FTE37IpVM7D5Ek%3D")
+               .header("Upgrade-Insecure-Requests", "1")
+//                .proxy( new Proxy(Proxy.Type.HTTP, new InetSocketAddress("60.31.89.2", 22309)))
+//                    .header("x-forward-for", randomIp)
+//                    .header("X-Forwarded-For", randomIp)
+//                    .header("client_ip", randomIp)
+//                    .header("CLIENT_IP", randomIp)
+//                    .header("REMOTE_ADDR", randomIp)
+//                    .header("VIA", randomIp)
+               .execute();
+           return "";
+       } catch (Exception e) {
+           return getJs();
+       }
     }
 
 

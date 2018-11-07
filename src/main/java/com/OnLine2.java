@@ -5,26 +5,25 @@ import com.hs.reptilian.constant.SystemConstant;
 import com.hs.reptilian.util.UserAgentUtil;
 import com.hs.reptilian.util.feifei.FeiFeiUtil;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import java.util.Date;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-
 /**
  * Created by lt on 2018/11/6 0006.
  */
 @Slf4j
 @SuppressWarnings("all")
-public class OnLine {
+public class OnLine2 {
 
     public static List<String> hosts = new ArrayList<>();
 
@@ -131,7 +130,7 @@ public class OnLine {
 
     public static void doLogin(Map<String, String> cookies) {
        try {
-           Connection.Response loginResponse = Jsoup.connect("https://mall.phicomm.com/passport-post_login.html")
+           Response loginResponse = Jsoup.connect("https://mall.phicomm.com/passport-post_login.html")
                    .method(Connection.Method.POST)
                    .cookies(cookies)
                    .timeout(SystemConstant.TIME_OUT)
@@ -147,7 +146,7 @@ public class OnLine {
                    .header("Accept-Encoding", "gzip, deflate, br")
                    .header("Accept-Language", "zh-CN,zh;q=0.9")
                    .data("forward", "")
-                   .data("uname", "13648045607")
+                   .data("uname", "15756343442")
                    .data("password", "li5201314")
                    .execute();
            System.out.println(JSON.parseObject(loginResponse.body()));
@@ -342,7 +341,7 @@ public class OnLine {
                 .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());
         System.out.println(vcCodeJson);
 //
-        Connection.Response createOrderResponse = Jsoup.connect("https://mall.phicomm.com/order-create-is_fastbuy.html").method(Connection.Method.POST)
+        Response createOrderResponse = Jsoup.connect("https://mall.phicomm.com/order-create-is_fastbuy.html").method(Connection.Method.POST)
 //                .proxy(proxyUtil.getProxy())
                 .timeout(SystemConstant.TIME_OUT).ignoreContentType(true)
                 .cookies(cookies)

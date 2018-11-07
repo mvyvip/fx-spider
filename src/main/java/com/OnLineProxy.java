@@ -2,50 +2,37 @@ package com;
 
 import com.alibaba.fastjson.JSON;
 import com.hs.reptilian.constant.SystemConstant;
+import com.hs.reptilian.util.ProxyUtil2;
 import com.hs.reptilian.util.UserAgentUtil;
 import com.hs.reptilian.util.feifei.FeiFeiUtil;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import java.util.Date;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-
 /**
  * Created by lt on 2018/11/6 0006.
  */
 @Slf4j
 @SuppressWarnings("all")
-public class OnLine {
+public class OnLineProxy {
 
     public static List<String> hosts = new ArrayList<>();
 
     public static Integer index = 0;
+    public static ProxyUtil2 proxyUtil2 = new ProxyUtil2();
+
 
     static {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         hosts.add("1.31.128.217");
@@ -91,6 +78,7 @@ public class OnLine {
                     .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
                     .header("Referer", "https://mall.phicomm.com/passport-login.html")
                     .header("Connection", "keep-alive")
+                    .proxy(proxyUtil2.getProxy())
                     .header("Upgrade-Insecure-Requests", "1")
                     .execute();
 
@@ -116,6 +104,7 @@ public class OnLine {
                    .header("Connection", "keep-alive")
                    .header("Upgrade-Insecure-Requests", "1")
                    .cookies(cookies)
+               .proxy(proxyUtil2.getProxy())
                    .execute();
            if(execute.statusCode() != 200) {
                log.error("登录界面ck返回异常， code: [{}]", execute.statusCode());
@@ -131,11 +120,12 @@ public class OnLine {
 
     public static void doLogin(Map<String, String> cookies) {
        try {
-           Connection.Response loginResponse = Jsoup.connect("https://mall.phicomm.com/passport-post_login.html")
+           Response loginResponse = Jsoup.connect("https://mall.phicomm.com/passport-post_login.html")
                    .method(Connection.Method.POST)
                    .cookies(cookies)
                    .timeout(SystemConstant.TIME_OUT)
                    .ignoreContentType(true)
+               .proxy(proxyUtil2.getProxy())
                    .header("Host", "mall.phicomm.com")
                    .header("Connection", "keep-alive")
                    .header("Accept", "application/json, text/javascript, */*; q=0.01")
@@ -147,8 +137,8 @@ public class OnLine {
                    .header("Accept-Encoding", "gzip, deflate, br")
                    .header("Accept-Language", "zh-CN,zh;q=0.9")
                    .data("forward", "")
-                   .data("uname", "13648045607")
-                   .data("password", "li5201314")
+               .data("uname", "18585816873")
+               .data("password", "qq666888")
                    .execute();
            System.out.println(JSON.parseObject(loginResponse.body()));
            cookies.putAll(loginResponse.cookies());
@@ -171,8 +161,9 @@ public class OnLine {
             try {
 //                Thread.sleep(SystemConstant.THREAD_WAIT_TIME);
                 try {
-                    Response response = Jsoup.connect("https://mall.phicomm.com/cart-fastbuy-14-1.html")
+                    Response response = Jsoup.connect("https://mall.phicomm.com/cart-fastbuy-13-1.html")
                         .method(Connection.Method.GET)
+                        .proxy(proxyUtil2.getProxy())
                         .timeout(SystemConstant.TIME_OUT)
 //                        .header("Host", "mall.phicomm.com")
                         .header("Host", getHosts())
@@ -248,6 +239,7 @@ public class OnLine {
                     .header("Host", "mall.phicomm.com")
                     .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.36")
                     .cookies(cookies)
+                .proxy(proxyUtil2.getProxy())
                     .followRedirects(true).execute();
             if(response.statusCode() != 200) {
                 try {
@@ -260,6 +252,7 @@ public class OnLine {
                             .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.36")
 //                .header("Cookie", "__jsluid=bee72d940b5fe9e2c9fab4dc084d6328; __jsl_clearance=1541512178.023|0|9C7P1IMlE%2F6FsLaiVSm0hGWAUBM%3D; _VMC_UID=5cf0eb68f3cd35339b9c8b11f8eacbf0; _SID=f170f457eea3e2c664d0880b0d05ae1d; Hm_lvt_c8bb97be004001570e447aa3e00ff0ad=1541512172; UNAME=18585816873; MEMBER_IDENT=6460242; MEMBER_LEVEL_ID=1; c_dizhi=769474; c_peisong=1; c_zhifu=alipay; CACHE_VARY=45cf279e0ac802340e208e1ef8d49b13-0f063e018c840f8a56946ecec41a6c18; Hm_lpvt_c8bb97be004001570e447aa3e00ff0ad=1541512280")
                             .cookies(cookies)
+                        .proxy(proxyUtil2.getProxy())
                             .followRedirects(true).execute();
                     if (response2.body().contains("库存不足,当前最多可售数量")) {
                         System.out.println("库存不足 - " + new Date().toLocaleString());
@@ -319,6 +312,8 @@ public class OnLine {
 
 
     public static void main(String[] args) throws Exception {
+        proxyUtil2.initIps();
+        Thread.sleep(5000);
         Map<String, String> cookies = getCookies();
         System.err.println(cookies);
 
@@ -338,12 +333,12 @@ public class OnLine {
                 .ignoreContentType(true)
                 .cookies(cookies)
                 .userAgent(UserAgentUtil.get())
-//                .proxy(proxyUtil.getProxy())
+                .proxy(proxyUtil2.getProxy())
                 .timeout(SystemConstant.TIME_OUT).execute().bodyAsBytes());
         System.out.println(vcCodeJson);
 //
-        Connection.Response createOrderResponse = Jsoup.connect("https://mall.phicomm.com/order-create-is_fastbuy.html").method(Connection.Method.POST)
-//                .proxy(proxyUtil.getProxy())
+        Response createOrderResponse = Jsoup.connect("https://mall.phicomm.com/order-create-is_fastbuy.html").method(Connection.Method.POST)
+                .proxy(proxyUtil2.getProxy())
                 .timeout(SystemConstant.TIME_OUT).ignoreContentType(true)
                 .cookies(cookies)
                 .userAgent(UserAgentUtil.get())
@@ -355,9 +350,9 @@ public class OnLine {
                 .data("yougouma", "")
                 .data("invoice_type", "")
                 .data("invoice_title", "")
-                .data("useVcNum", "23900")
+                .data("useVcNum", "0")
                 .data("need_invoice2", "on")
-                .data("useDdwNum", "0")
+                .data("useDdwNum", "29900")
                 .data("memo", "")
                 .data("vcode", vcCodeJson)
                 .execute();
